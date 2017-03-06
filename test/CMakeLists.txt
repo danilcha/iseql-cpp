@@ -1,16 +1,15 @@
-add_subdirectory(lib/googletest)
+cmake_minimum_required(VERSION 2.4)
 
 
+include_directories(../src)
 
-# Now simply link against gtest or gtest_main as needed. Eg
-#add_executable(example example.cpp)
-#target_link_libraries(example gtest_main)
-#add_test(NAME example_test COMMAND example)
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-global-constructors")
+endif()
 
 
 enable_testing()
-#find_package(GTest REQUIRED)
+find_package(GTest REQUIRED)
 add_executable(tests model/IntervalTest.cpp)
-#target_link_libraries(tests GTest::GTest GTest::Main)
-target_link_libraries(tests gtest_main)
+target_link_libraries(tests GTest::GTest GTest::Main)
 add_test(NAME tests COMMAND tests)

@@ -1,12 +1,17 @@
 #pragma once
 
-#include <cstdint>
 #include "Interval.h"
 
 
-struct Tuple
+class Tuple : public Interval
 {
-	Timestamp start, end;
+public:
+	Tuple(Timestamp start, Timestamp end) noexcept
+	:
+		Interval(start, end)
+	{
+
+	}
 
 };
 
