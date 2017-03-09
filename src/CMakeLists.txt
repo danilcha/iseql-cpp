@@ -15,11 +15,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 
 add_executable(iseql
 
-		main.cpp
+		Main.cpp
 		model/Interval.h
 		model/Tuple.h
 		model/Relation.h
+		model/Endpoint.h
+		model/Index.h
 
-		algorithms/BasicStartPreceeding.h
 
-)
+		algorithms/BasicJoins.h
+
+		algorithms/Joins.h)

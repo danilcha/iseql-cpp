@@ -5,6 +5,8 @@
 #include <ostream>
 #include <utility>
 
+
+
 using Timestamp = int;
 
 
@@ -22,8 +24,6 @@ public:
 	{
 		assert(start <= end);
 	}
-
-
 
 
 	bool operator < (const Interval& rhs) const noexcept
@@ -44,6 +44,12 @@ public:
 	}
 
 
+	Timestamp getLength() const noexcept
+	{
+		return end - start + 1;
+	}
+
+
 	friend void swap(Interval& a, Interval& b) noexcept
 	{
 		using std::swap;
@@ -52,18 +58,10 @@ public:
 	}
 
 
-	auto getLength() const noexcept
+	friend std::ostream& operator << (std::ostream &out, const Interval& self)
 	{
-		return end - start + 1;
+		return out << '[' << self.start << ',' << self.end << ']';
 	}
-
-
-//	friend std::ostream& operator << (std::ostream &out, const Interval& self)
-//	{
-//		return out << '['
-//				<< (self.start == NEGATIVE_INFINITY ? "inf" : std::to_string(self.start)) << ", "
-//				<< (self.end   == POSITIVE_INFINITY ? "inf" : std::to_string(self.end  )) << ')';
-//	}
 };
 
 
