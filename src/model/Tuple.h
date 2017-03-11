@@ -14,7 +14,7 @@ public:
 	Tuple(Timestamp start, Timestamp end, int id) noexcept
 	:
 		Interval(start, end),
-	    id(id)
+		id(id)
 	{
 
 	}
