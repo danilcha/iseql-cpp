@@ -2,8 +2,8 @@
 
 #include <vector>
 #include <algorithm>
-#include "Endpoint.h"
-#include "Relation.h"
+#include "model/Endpoint.h"
+#include "model/Relation.h"
 
 
 
@@ -19,6 +19,7 @@ public:
 
 	}
 
+	using std::vector<Endpoint>::const_iterator; // Until CLion fixes bug
 
 	Index(const Relation& r)
 	{
@@ -46,6 +47,7 @@ public:
 	{
 		return maxOverlappingTupleCount;
 	}
+
 
 
 private:

@@ -263,3 +263,26 @@ TEST_F(Joins, reverseDuringWithDeltaAndEpsilon)
 
 
 
+TEST_F(Joins, beforeJoin)
+{
+	beforeJoin(R, S, 3, consumer);
+
+	EXPECT_THAT(result, UnorderedElementsAre(
+		Pair(1, 5)
+	));
+}
+
+
+
+TEST_F(Joins, afterJoin)
+{
+	afterJoin(R, S, 2, consumer);
+
+	EXPECT_THAT(result, UnorderedElementsAre(
+		Pair(3, 3),
+		Pair(3, 4)
+	));
+}
+
+
+

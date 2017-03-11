@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ostream>
-#include "Tuple.h"
+#include "model/Tuple.h"
 
 
 
@@ -19,6 +19,13 @@ private:
 	Timestamp timestampAndType;
 	TID tid;
 
+public:
+	Endpoint(Timestamp timestampAndType, TID tid)
+	:
+		timestampAndType(timestampAndType),
+		tid(tid)
+	{
+	}
 
 public:
 	Endpoint(Timestamp timestamp, Type type, TID tid) noexcept
@@ -73,6 +80,23 @@ public:
 	}
 
 
+	static Timestamp calculateShiftArgument(Timestamp delta)
+	{
+		return delta << 1;
+	}
+
+	static Timestamp calculateShiftArgument(Timestamp delta, Type fromType, Type toType)
+	{
+		return calculateShiftArgument(delta) + static_cast<Timestamp>(toType) - static_cast<Timestamp>(fromType);
+	}
+
+
+	Endpoint shiftedBy(Timestamp shiftArgument) const noexcept
+	{
+		return Endpoint(timestampAndType + shiftArgument, tid);
+	}
+
+
 	friend void swap(Endpoint& a, Endpoint& b) noexcept
 	{
 		using std::swap;
@@ -83,7 +107,7 @@ public:
 
 	friend std::ostream& operator << (std::ostream &out, const Endpoint& endpoint)
 	{
-		return out << '@' << endpoint.getTimestamp() << (endpoint.isStart() ? 'S' : 'E') << ' ' << endpoint.getTID();
+		return out << '@' << endpoint.getTimestamp() << (endpoint.isStart() ? 'S' : 'E') << endpoint.getTID() + 1;
 	}
 };
 

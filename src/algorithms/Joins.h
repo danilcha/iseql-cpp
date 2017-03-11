@@ -1,16 +1,12 @@
 #pragma once
 
 #include <limits>
-#include "BasicJoins.h"
+#include "algorithms/Joins2.h"
 
 
 constexpr Timestamp UNBOUND = std::numeric_limits<Timestamp>::max();
 
 
-// This class allow writing
-// ReversingConsumer<Consumer>(consumer)
-// instead of
-// [&consumer] (const Tuple& s, const Tuple& r) { consumer(r, s); }
 template<typename Consumer>
 class ReversingConsumer
 {
@@ -26,10 +22,16 @@ public:
 	}
 };
 
+template<typename Consumer>
+inline ReversingConsumer<Consumer> makeReversingConsumer(const Consumer& consumer) noexcept
+{
+	return ReversingConsumer<Consumer>(consumer);
+}
+
 
 
 template <typename Consumer>
-void startPrecedingJoin(const Relation& R, const Relation& S, Timestamp delta, const Consumer& consumer)
+void startPrecedingJoin(const Relation& R, const Relation& S, Timestamp delta, const Consumer& consumer) noexcept
 {
 	startPrecedingJoin(R, S, [delta, &consumer] (const Tuple& r, const Tuple& s)
 	{
@@ -41,15 +43,15 @@ void startPrecedingJoin(const Relation& R, const Relation& S, Timestamp delta, c
 
 
 template <typename Consumer>
-void reverseStartPrecedingJoin(const Relation& R, const Relation& S, const Consumer& consumer)
+void reverseStartPrecedingJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
 {
-	startPrecedingJoin(S, R, ReversingConsumer<Consumer>(consumer));
+	startPrecedingJoin(S, R, makeReversingConsumer(consumer));
 }
 
 
 
 template <typename Consumer>
-void endFollowingJoin(const Relation& R, const Relation& S, Timestamp epsilon, const Consumer& consumer)
+void endFollowingJoin(const Relation& R, const Relation& S, Timestamp epsilon, const Consumer& consumer) noexcept
 {
 	endFollowingJoin(R, S, [epsilon, &consumer] (const Tuple& r, const Tuple& s)
 	{
@@ -61,7 +63,7 @@ void endFollowingJoin(const Relation& R, const Relation& S, Timestamp epsilon, c
 
 
 template <typename Consumer>
-void reverseEndFollowingJoin(const Relation& R, const Relation& S, const Consumer& consumer)
+void reverseEndFollowingJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
 {
 	endFollowingJoin(S, R, [&consumer] (const Tuple& s, const Tuple& r) { consumer(r, s); });
 }
@@ -69,7 +71,7 @@ void reverseEndFollowingJoin(const Relation& R, const Relation& S, const Consume
 
 
 template <typename Consumer>
-void leftOverlapJoin(const Relation& R, const Relation& S, const Consumer& consumer)
+void leftOverlapJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
 {
 	startPrecedingJoin(R, S, [&consumer] (const Tuple& r, const Tuple& s)
 	{
@@ -82,7 +84,7 @@ void leftOverlapJoin(const Relation& R, const Relation& S, const Consumer& consu
 
 
 template <typename Consumer>
-void leftOverlapJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer)
+void leftOverlapJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer) noexcept
 {
 	leftOverlapJoin(R, S, [delta, epsilon, &consumer] (const Tuple& r, const Tuple& s)
 	{
@@ -95,24 +97,24 @@ void leftOverlapJoin(const Relation& R, const Relation& S, Timestamp delta, Time
 
 
 template <typename Consumer>
-void rightOverlapJoin(const Relation& R, const Relation& S, const Consumer& consumer)
+void rightOverlapJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
 {
-	leftOverlapJoin(S, R, ReversingConsumer<Consumer>(consumer));
+	leftOverlapJoin(S, R, makeReversingConsumer(consumer));
 }
 
 
 
 
 template <typename Consumer>
-void rightOverlapJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer)
+void rightOverlapJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer) noexcept
 {
-	leftOverlapJoin(S, R, delta, epsilon, ReversingConsumer<Consumer>(consumer));
+	leftOverlapJoin(S, R, delta, epsilon, makeReversingConsumer(consumer));
 }
 
 
 
 template <typename Consumer>
-void duringJoin(const Relation& R, const Relation& S, const Consumer& consumer)
+void duringJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
 {
 	reverseStartPrecedingJoin(R, S, [&consumer] (const Tuple& r, const Tuple& s)
 	{
@@ -124,7 +126,7 @@ void duringJoin(const Relation& R, const Relation& S, const Consumer& consumer)
 
 
 template <typename Consumer>
-void duringJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer)
+void duringJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer) noexcept
 {
 	duringJoin(R, S, [delta, epsilon, &consumer] (const Tuple& r, const Tuple& s)
 	{
@@ -136,18 +138,29 @@ void duringJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp
 
 
 template <typename Consumer>
-void reverseDuringJoin(const Relation& R, const Relation& S, const Consumer& consumer)
+void reverseDuringJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
 {
-	duringJoin(S, R, ReversingConsumer<Consumer>(consumer));
+	duringJoin(S, R, makeReversingConsumer(consumer));
 }
 
 
 
 template <typename Consumer>
-void reverseDuringJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer)
+void reverseDuringJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer) noexcept
 {
-	duringJoin(S, R, delta, epsilon, ReversingConsumer<Consumer>(consumer));
+	duringJoin(S, R, delta, epsilon, makeReversingConsumer(consumer));
 }
+
+
+
+template <typename Consumer>
+void afterJoin(const Relation& R, const Relation& S, Timestamp delta, const Consumer& consumer) noexcept
+{
+	beforeJoin(S, R, delta, makeReversingConsumer(consumer));
+}
+
+
+
 
 
 

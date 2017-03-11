@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Interval.h"
+#include "model/Interval.h"
 
 
 
