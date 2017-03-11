@@ -19,14 +19,14 @@ public:
 	}
 
 
-	bool operator++() noexcept
+	bool next() noexcept
 	{
 		++it;
 		return it != end;
 	}
 
 
-	Endpoint operator*() const noexcept
+	Endpoint getEndpoint() const noexcept
 	{
 		return *it;
 	}
@@ -48,15 +48,15 @@ public:
 		type(type)
 	{
 		while (isInvalid())
-			++(this->iterator);
+			this->iterator.next();
 	}
 
-	bool operator++() noexcept
+	bool next() noexcept
 	{
 		bool result;
 		do
 		{
-			result = ++iterator;
+			result = iterator.next();
 		}
 		while (result && isInvalid());
 
@@ -65,13 +65,13 @@ public:
 
 	bool isInvalid() const noexcept
 	{
-		return (*iterator).getType() != type;
+		return getEndpoint().getType() != type;
 	}
 
 
-	Endpoint operator*() const noexcept
+	Endpoint getEndpoint() const noexcept
 	{
-		return *iterator;
+		return iterator.getEndpoint();
 	}
 };
 
@@ -99,14 +99,14 @@ public:
 	{
 	}
 
-	bool operator++() noexcept
+	bool next() noexcept
 	{
-		return ++iterator;
+		return iterator.next();
 	}
 
-	Endpoint operator*() const noexcept
+	Endpoint getEndpoint() const noexcept
 	{
-		return (*iterator).shiftedBy(shiftArgument);
+		return iterator.getEndpoint().shiftedBy(shiftArgument);
 	}
 };
 
@@ -124,28 +124,27 @@ public:
 	MergingIterator(Iterator1 iterator1, Iterator2 iterator2) noexcept
 	:
 		iterator1(iterator1),
-		iterator2(iterator2),
-		endpoint(0, 0)
+		iterator2(iterator2)
 	{
-		operator++();
+		next();
 	}
 
 
-	bool operator++() noexcept
+	bool next() noexcept
 	{
-		if (*iterator1 < *iterator2)
+		if (iterator1.getEndpoint() < iterator2.getEndpoint())
 		{
-			endpoint = *iterator1;
-			return ++iterator1;
+			endpoint = iterator1.getEndpoint();
+			return iterator1.next();
 		}
 		else
 		{
-			endpoint = *iterator2;
-			return ++iterator2;
+			endpoint = iterator2.getEndpoint();
+			return iterator2.next();
 		}
 	}
 
-	Endpoint operator*() const noexcept
+	Endpoint getEndpoint() const noexcept
 	{
 		return endpoint;
 	}

@@ -14,12 +14,13 @@ class Endpoint
 public:
 	enum class Type : Timestamp {START = 0, END = 1};
 
-
 private:
 	Timestamp timestampAndType;
 	TID tid;
 
 public:
+	Endpoint() { }
+
 	Endpoint(Timestamp timestampAndType, TID tid)
 	:
 		timestampAndType(timestampAndType),
