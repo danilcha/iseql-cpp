@@ -20,7 +20,7 @@ endif()
 
 
 
-
+configure_file(.gitignore .gitignore COPYONLY) # just to make it part of the project
 
 
 add_subdirectory(src)
