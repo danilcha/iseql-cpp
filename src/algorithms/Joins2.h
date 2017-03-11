@@ -33,8 +33,8 @@ void beforeJoin(const Relation& R, const Relation& S, Timestamp delta, const Con
 		R,
 		S,
 		makeMergingIterator(
-			makeShiftingIterator(makeFilteringIterator(index, END), 1, END, START),
-			makeShiftingIterator(makeFilteringIterator(index, END), delta)
+			makeShiftingIterator(makeFilteringIterator(index, END), 1, END, START), // r.end + 1     -> r.start
+			makeShiftingIterator(makeFilteringIterator(index, END), delta)          // r.end + delta -> r.end
 		),
 		consumer
 	);
