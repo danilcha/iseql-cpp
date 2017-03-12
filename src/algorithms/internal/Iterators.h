@@ -151,6 +151,7 @@ public:
 };
 
 
+
 template <typename Iterator>
 FilteringIterator<Iterator> makeFilteringIterator(Iterator iterator, Endpoint::Type type) noexcept
 {
@@ -173,6 +174,7 @@ ShiftingIterator<Iterator> makeShiftingIterator(Iterator iterator, int delta) no
 }
 
 
+
 template <typename Iterator>
 ShiftingIterator<Iterator> makeShiftingIterator(Iterator iterator, int delta, Endpoint::Type fromType, Endpoint::Type toType) noexcept
 {
@@ -180,11 +182,9 @@ ShiftingIterator<Iterator> makeShiftingIterator(Iterator iterator, int delta, En
 }
 
 
+
 template <typename Iterator1, typename Iterator2>
 MergingIterator<Iterator1, Iterator2> makeMergingIterator(Iterator1 iterator1, Iterator2 iterator2) noexcept
 {
 	return MergingIterator<Iterator1, Iterator2>(iterator1, iterator2);
 }
-
-
-

@@ -1,31 +1,21 @@
 #pragma once
 
 #include <limits>
-#include "algorithms/Joins2.h"
+#include "algorithms/internal/Joins2.h"
+
 
 
 constexpr Timestamp UNBOUND = std::numeric_limits<Timestamp>::max();
 
 
+
 template<typename Consumer>
-class ReversingConsumer
+inline auto makeReversingConsumer(const Consumer& consumer) noexcept
 {
-private:
-	const Consumer& consumer;
-
-public:
-	ReversingConsumer(const Consumer& consumer) noexcept : consumer(consumer) { }
-
-	void operator()(const Tuple& s, const Tuple& r) const noexcept
+	return [&consumer] (const Tuple& s, const Tuple& r) noexcept
 	{
 		consumer(r, s);
-	}
-};
-
-template<typename Consumer>
-inline ReversingConsumer<Consumer> makeReversingConsumer(const Consumer& consumer) noexcept
-{
-	return ReversingConsumer<Consumer>(consumer);
+	};
 }
 
 
@@ -82,7 +72,6 @@ void leftOverlapJoin(const Relation& R, const Relation& S, const Consumer& consu
 
 
 
-
 template <typename Consumer>
 void leftOverlapJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer) noexcept
 {
@@ -95,13 +84,11 @@ void leftOverlapJoin(const Relation& R, const Relation& S, Timestamp delta, Time
 
 
 
-
 template <typename Consumer>
 void rightOverlapJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
 {
 	leftOverlapJoin(S, R, makeReversingConsumer(consumer));
 }
-
 
 
 
@@ -158,10 +145,3 @@ void afterJoin(const Relation& R, const Relation& S, Timestamp delta, const Cons
 {
 	beforeJoin(S, R, delta, makeReversingConsumer(consumer));
 }
-
-
-
-
-
-
-

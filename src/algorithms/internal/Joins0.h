@@ -2,8 +2,7 @@
 
 #include <unordered_map>
 #include <iostream>
-#include "algorithms/Iterators.h"
-
+#include "algorithms/internal/Iterators.h"
 
 
 
@@ -38,5 +37,3 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 		}
 	}
 }
-
-

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithms/Joins1.h"
+#include "algorithms/internal/Joins1.h"
 
 
 
