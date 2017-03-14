@@ -11,7 +11,7 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 {
 	std::unordered_map<TID, Tuple> activeR;
 
-	while (true)
+	for (;;)
 	{
 		if (comp(itS.getEndpoint(), itR.getEndpoint()))
 		{
