@@ -6,7 +6,7 @@
 
 class Iterator
 {
-protected:
+private:
 	Index::const_iterator it;
 	Index::const_iterator end;
 

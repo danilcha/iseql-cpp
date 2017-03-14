@@ -55,7 +55,7 @@ void endFollowingJoin(const Relation& R, const Relation& S, Timestamp epsilon, c
 template <typename Consumer>
 void reverseEndFollowingJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
 {
-	endFollowingJoin(S, R, [&consumer] (const Tuple& s, const Tuple& r) { consumer(r, s); });
+	endFollowingJoin(S, R, makeReversingConsumer(consumer));
 }
 
 
