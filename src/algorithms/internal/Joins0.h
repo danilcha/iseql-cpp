@@ -13,16 +13,7 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 
 	for (;;)
 	{
-		if (comp(itS.getEndpoint(), itR.getEndpoint()))
-		{
-			const Tuple& s = S[itS.getEndpoint().getTID()];
-			for (const auto& r : activeR)
-				consumer(r.second, s);
-
-			if (!itS.next())
-				break;
-		}
-		else
+		if (comp(itR.getEndpoint(), itS.getEndpoint()))
 		{
 			Endpoint endpointR = itR.getEndpoint();
 			TID tid = endpointR.getTID();
@@ -33,6 +24,15 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 				activeR.erase(tid);
 
 			if (!itR.next())
+				break;
+		}
+		else
+		{
+			const Tuple& s = S[itS.getEndpoint().getTID()];
+			for (const auto& r : activeR)
+				consumer(r.second, s);
+
+			if (!itS.next())
 				break;
 		}
 	}
