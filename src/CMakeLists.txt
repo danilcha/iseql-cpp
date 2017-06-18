@@ -33,4 +33,9 @@ add_executable(iseql
 		util/Timer.h
 		util/Experiments.h
 
-		MainBefore.h containers/Util.h)
+		MainBefore.h
+
+		containers/GaplessHashMap.h
+		containers/Util.h
+
+)

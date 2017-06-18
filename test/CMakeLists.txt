@@ -15,7 +15,6 @@ add_executable(tests
 	model/IntervalTest.cpp
 	algorithms/JoinsTest.cpp
 	algorithms/JoinsInlinedTest.cpp
-	containers/FastHeapTest.cpp
 	containers/GaplessHashMapTest.cpp
 )
 target_link_libraries(tests gmock_main)
