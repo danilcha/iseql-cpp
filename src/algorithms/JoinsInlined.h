@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include <unordered_map>
 #include <iostream>
 #include "model/Index.h"
 #include "model/Relation.h"
+#include "containers/GaplessHashMap.h"
 
 
 //void afterJoin(const Relation& R, const Relation& S, Timestamp delta, const Consumer& consumer) noexcept
@@ -18,7 +18,8 @@ static Timestamp beforeJoinInlined(const Relation& R, const Relation& S, Timesta
 {
 	Timestamp result = 0;
 
-	std::unordered_map<TID, Tuple> activeR;
+	GaplessHashMap<TID, Tuple> activeR(1024);
+//	std::unordered_map<TID, Tuple> activeR;
 
 	const auto& indexR = R.getIndex();
 	const auto& indexS = S.getIndex();
@@ -53,7 +54,7 @@ static Timestamp beforeJoinInlined(const Relation& R, const Relation& S, Timesta
 			TID tid = endpointR.getTID();
 
 			if (endpointR.isStart())
-				activeR.emplace(tid, R[tid]);
+				activeR.insert(tid, R[tid]);
 			else
 				activeR.erase(tid);
 
@@ -84,7 +85,7 @@ static Timestamp beforeJoinInlined(const Relation& R, const Relation& S, Timesta
 			for (const auto& r : activeR)
 			{
 //				std::cout << "Result " << r.second << "  " << s << std::endl;
-				result += r.second.start + s.end;
+				result += r.start + s.end;
 			}
 
 			do

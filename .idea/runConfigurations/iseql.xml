@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="iseql" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="iseql" TARGET_NAME="iseql" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="iseql" RUN_TARGET_NAME="iseql">
+  <configuration default="false" name="iseql" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="iseql" TARGET_NAME="iseql" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="iseql" RUN_TARGET_NAME="iseql">
     <envs />
     <method />
   </configuration>

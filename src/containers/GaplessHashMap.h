@@ -4,128 +4,282 @@
 #include "Util.h"
 
 
-// todo: bug: we remove the first element in the bucket and the last element in the bucket is moved
+
+
+
+
+
+
 
 
 template<typename K, typename V>
 class GaplessHashMap
 {
 private:
-	typedef int32_t Ref;
+	class Reference
+	{
+	private:
+		typedef uint32_t value_type;
+		static constexpr value_type tableFlag = ~(~value_type(0) >> 1);
+
+	private:
+		value_type value;
+
+		Reference(value_type value) noexcept
+		:
+			value(value)
+		{
+
+		}
+
+	public:
+		static Reference forTable(size_t position) noexcept
+		{
+			return static_cast<value_type>(position) | tableFlag;
+		}
+
+		static Reference forNodes(size_t position) noexcept
+		{
+			return static_cast<value_type>(position);
+		}
+
+		inline bool isTableReference() const noexcept
+		{
+			return (value & tableFlag) != 0;
+		}
+
+		inline size_t getTablePosition() const noexcept
+		{
+			return value & ~tableFlag;
+		}
+
+		inline size_t getNodesPosition() const noexcept
+		{
+			return value;
+		}
+
+		inline operator bool() const noexcept
+		{
+			return value != 0;
+		}
+	};
+
+
+	template <typename T>
+	class BaseOneDynamicArray
+	{
+		T* array;
+		T* arrayEnd;
+
+	public:
+		BaseOneDynamicArray(size_t capacity) noexcept
+		:
+			array(array_malloc<T>(capacity) - 1),
+			arrayEnd(begin())
+		{
+		}
+
+		virtual ~BaseOneDynamicArray() noexcept
+		{
+			std::free(begin());
+		}
+
+		T* insert() noexcept
+		{
+			auto result = arrayEnd;
+			++arrayEnd;
+			return result;
+		}
+
+		void insert(const T& value) noexcept
+		{
+			*insert() = value;
+		}
+
+		void erase(Reference reference) noexcept
+		{
+			T* element = &operator[](reference);
+
+			arrayEnd--;
+
+			if (element != arrayEnd)
+				*element = *arrayEnd;
+		}
+
+		Reference referenceOf(const T* element) const noexcept
+		{
+			return Reference::forNodes(static_cast<size_t>(element - array));
+		}
+
+		T& operator[](Reference reference) noexcept
+		{
+			return array[reference.getNodesPosition()];
+		}
+
+		T* begin() const noexcept
+		{
+			return array + 1;
+		}
+
+		T* end() const noexcept
+		{
+			return arrayEnd;
+		}
+
+		size_t size() const noexcept
+		{
+			return static_cast<size_t>(end() - begin());
+		}
+
+		void resize(size_t capacity)
+		{
+			size_t saveSize = size();
+			array = array_realloc(begin(), capacity) - 1;
+			arrayEnd = begin() + saveSize;
+		}
+	};
+
+
+	class HashTable
+	{
+		Reference* table;
+		size_t mask;
+
+	public:
+		HashTable(size_t size) noexcept
+		:
+			table(array_calloc<Reference>(size)),
+			mask(size - 1)
+		{
+		}
+
+
+		friend void swap(HashTable& table1, HashTable& table2)
+		{
+			std::swap(table1.table, table2.table);
+			std::swap(table1.mask,  table2.mask);
+		}
+
+		~HashTable() noexcept
+		{
+			std::free(table);
+		}
+
+
+		inline size_t size() const noexcept
+		{
+			return mask + 1;
+		}
+
+
+		Reference referenceOf(const Reference* bucket) const noexcept
+		{
+			return Reference::forTable(static_cast<size_t>(bucket - table));
+		}
+
+
+		Reference* bucketFor(K key) noexcept
+		{
+			size_t position = static_cast<size_t>(key) & mask;
+			return table + position;
+		}
+
+		Reference& operator[](Reference reference) noexcept
+		{
+			return table[reference.getTablePosition()];
+		}
+
+	};
+
 
 	struct Node
 	{
-		Ref prev, next;
+		Reference prev, next;
 		K key;
 	};
 
 
-	const size_t tableSize;
-	const size_t hashMask;
-	Ref* const table;
-	Ref* const tableBase;
+private:
+	size_t capacity;
+	HashTable table;
+	BaseOneDynamicArray<Node> nodes;
+	BaseOneDynamicArray<V> values;
 
-	Node* const nodes;
-	V*    const values;
-	Node* tail;
-	V*    valuesTail;
-	Node* bound;
-	Node* const nodesBase;
-	V*    const valuesBase;
 
 public:
 	using value_type = V;
 	using const_iterator = const V*;
 
-
+public:
 	GaplessHashMap(size_t capacity) noexcept
 	:
-		tableSize(next_power_of_two(capacity)),
-		hashMask(tableSize - 1),
-		table(array_calloc<Ref>(tableSize)),
-		tableBase(table + tableSize),
-
-		nodes (array_malloc<Node>(capacity)),
-		values(array_malloc<V>(capacity)),
-		tail(nodes),
-		valuesTail(values),
-		bound(nodes + capacity),
-		nodesBase(nodes - 1), // for 1-based indexing
-		valuesBase(values - 1) // for 1-based indexing
+		capacity(capacity),
+		table(next_power_of_two(capacity)),
+		nodes (capacity),
+		values(capacity)
 	{
 	}
 
 
-	~GaplessHashMap() noexcept
-	{
-		std::free(table);
-		std::free(nodes);
-		std::free(values);
-	}
 
 
 	void insert(K key, const V& value) noexcept
 	{
-		Ref* slot = table + position(key);
-		Ref slotRef = Ref(slot - tableBase);
+		if (values.size() == capacity)
+			grow();
 
-		Node* node = tail;
-		assert(tail < bound);
-		tail++;
+		values.insert(value);
+		Node* node = nodes.insert();
 
-		Ref nodeRef = Ref(node - nodesBase);
-
-		node->prev = slotRef;
-		node->next = *slot;
-		node->key  = key;
-		if (node->next)
-			nodesBase[node->next].prev = nodeRef;
-		*slot = nodeRef;
-
-		*valuesTail = value;
-		valuesTail++;
+		node->key = key;
+		insertNodeIntoBucket(table, node);
 	}
 
 
 
 	void erase(K key) noexcept
 	{
-		Ref* slot = table + position(key);
-		Ref slotRef = Ref(slot - tableBase);
+		Reference reference = *table.bucketFor(key);
+		Node* node = &nodes[reference];
 
-		Node* node = nodesBase + *slot;
+		// Find the node
 
-
-		while (node->key != key) // Will contain the key, may skip checks for null
+		while (node->key != key)
 		{
-			slotRef = *slot;
-			slot = &node->next;
-			node = nodesBase + *slot;
+			reference = node->next;
+			node = &nodes[reference];
 		}
 
-		V* currentValue = valuesBase + *slot;
+		// Remove the node from the bucket
 
-		*slot = node->next;
-		if (node->next)
-			nodesBase[node->next].prev = slotRef;
+		Reference prev = node->prev;
+		Reference next = node->next;
 
-		tail--;
-		valuesTail--;
-		if (node != tail)
+		if (prev.isTableReference())
+			table[prev] = next;
+		else
+			nodes[prev].next = next;
+
+		if (next)
+			nodes[next].prev = prev;
+
+		// Remove the node and the value from storage arrays
+
+		values.erase(reference);
+		nodes.erase(reference);
+
+		if (node != nodes.end()) // node now points to a different, moved node
 		{
-			*currentValue = *valuesTail;
-			node->prev  = tail->prev;
-			node->next  = tail->next;
-			node->key   = tail->key;
-			Ref nodeRef = Ref(node - nodesBase);
+			prev = node->prev;
+			next = node->next;
 
-			if (node->next)
-				nodesBase[node->next].prev = nodeRef;
-
-			if (node->prev < 0)
-				tableBase[node->prev] = nodeRef;
+			if (prev.isTableReference())
+				table[prev] = reference;
 			else
-				nodesBase[node->prev].next = nodeRef;
+				nodes[prev].next = reference;
+
+			if (next)
+				nodes[next].prev = reference;
 		}
 	}
 
@@ -136,28 +290,56 @@ public:
 
 
 
-
-	inline size_t position(K key) const noexcept
-	{
-		return static_cast<size_t>(key) & hashMask;
-	}
 
 
 	const_iterator begin() const noexcept
 	{
-		return values;
+		return values.begin();
 	}
 
 
 	const_iterator end() const noexcept
 	{
-		return valuesTail;
+		return values.end();
 	}
 
-
-	size_t size() const noexcept
+private:
+	void grow() noexcept
 	{
-		return end() - begin();
+		constexpr size_t factor = 4;
+
+		capacity *= factor;
+		nodes.resize(capacity);
+		values.resize(capacity);
+
+		HashTable table2(table.size() * factor);
+
+		for (Node& node : nodes)
+		{
+			insertNodeIntoBucket(table2, &node);
+
+		}
+
+
+		swap(table, table2);
 	}
+
+
+
+	void insertNodeIntoBucket(HashTable& table, Node* node) noexcept
+	{
+		Reference* bucket = table.bucketFor(node->key);
+
+		node->prev = table.referenceOf(bucket);
+		node->next = *bucket;
+		if (node->next)
+			nodes[node->next].prev = nodes.referenceOf(node);
+
+		*bucket = nodes.referenceOf(node);
+
+	}
+
+
+
 };
 

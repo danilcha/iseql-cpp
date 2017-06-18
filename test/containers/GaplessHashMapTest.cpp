@@ -6,7 +6,7 @@
 using testing::UnorderedElementsAre;
 
 
-TEST(Containers, GaplessHashMap)
+TEST(GaplessHashMap, Basic)
 {
 	GaplessHashMap<int, int> map(10);
 
@@ -37,6 +37,23 @@ TEST(Containers, GaplessHashMap)
 	map.insert(5, 25);
 
 	EXPECT_THAT(map, UnorderedElementsAre(21, 22, 25));
+}
+
+
+TEST(GaplessHashMap, Grow)
+{
+	GaplessHashMap<int, int> map(2); // hash table size 4
+
+	map.insert(0x01, 0x01);
+	map.insert(0x02, 0x02);
+
+	EXPECT_THAT(map, UnorderedElementsAre(0x01, 0x02));
+
+	map.insert(0x11, 0x11);
+
+	EXPECT_THAT(map, UnorderedElementsAre(0x01, 0x02, 0x11));
+
+
 }
 
 

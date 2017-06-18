@@ -5,6 +5,7 @@
       <w>gtest</w>
       <w>inlined</w>
       <w>iseql</w>
+      <w>realloc</w>
     </words>
   </dictionary>
 </component>

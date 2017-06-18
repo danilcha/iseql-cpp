@@ -1,15 +1,15 @@
 #pragma once
 
-#include <unordered_map>
 #include <iostream>
 #include "Iterators.h"
+#include "containers/GaplessHashMap.h"
 
 
 
 template <typename IteratorR, typename IteratorS, typename Compare, typename Consumer>
 void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS, Compare comp, const Consumer& consumer)
 {
-	std::unordered_map<TID, Tuple> activeR;
+	GaplessHashMap<TID, Tuple> activeR(1024);
 
 	for (;;)
 	{
@@ -19,7 +19,7 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 			TID tid = endpointR.getTID();
 
 			if (endpointR.isStart())
-				activeR.emplace(tid, R[tid]);
+				activeR.insert(tid, R[tid]);
 			else
 				activeR.erase(tid);
 
@@ -31,7 +31,7 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 		{
 			const Tuple& s = S[itS.getEndpoint().getTID()];
 			for (const auto& r : activeR)
-				consumer(r.second, s);
+				consumer(r, s);
 
 			itS.moveToNextEndpoint();
 			if (itS.isFinished())

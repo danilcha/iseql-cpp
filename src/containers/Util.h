@@ -34,13 +34,21 @@ T* array_malloc(size_t size) noexcept
 	return result;
 }
 
+template<typename T>
+T* array_realloc(T* array, size_t size) noexcept
+{
+	auto result = static_cast<T*>(std::realloc(array, size * sizeof(T)));
+	check_malloc_result(result, size);
+	return result;
+}
+
 
 template <typename T>
 T next_power_of_two(T x)
 {
 	T result = 2;
 	while (result < x)
-		result *= 2;
+		result <<= 1;
 	return result;
 }
 
