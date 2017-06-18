@@ -23,7 +23,14 @@ add_executable(iseql
 		model/Endpoint.h
 		model/Index.h
 
-		algorithms/internal/Iterators.h
-		algorithms/internal/Joins0.h
+		algorithms/Iterators.h
+		algorithms/Joins0.h
+		algorithms/Joins1.h
+		algorithms/Joins2.h
 		algorithms/Joins.h
-		algorithms/internal/Joins2.h algorithms/internal/Joins1.h)
+		algorithms/JoinsInlined.h
+
+		util/Timer.h
+		util/Experiments.h
+
+		MainBefore.h containers/Util.h)

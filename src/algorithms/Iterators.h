@@ -19,14 +19,19 @@ public:
 	}
 
 
-	bool next() noexcept
+	void moveToNextEndpoint() noexcept
 	{
 		++it;
-		return it != end;
 	}
 
 
-	Endpoint getEndpoint() const noexcept
+	bool isFinished() const noexcept
+	{
+		return it == end;
+	}
+
+
+	const Endpoint& getEndpoint() const noexcept
 	{
 		return *it;
 	}
@@ -41,35 +46,38 @@ private:
 	Iterator iterator;
 	Endpoint::Type type;
 
+	bool isWrongType() const noexcept
+	{
+		return getEndpoint().getType() != type;
+	}
+
 public:
 	FilteringIterator(Iterator iterator, Endpoint::Type type) noexcept
 	:
 		iterator(iterator),
 		type(type)
 	{
-		while (isInvalid())
-			this->iterator.next();
+		while (isWrongType())
+			this->iterator.moveToNextEndpoint();
 	}
 
-	bool next() noexcept
+	void moveToNextEndpoint() noexcept
 	{
-		bool result;
 		do
 		{
-			result = iterator.next();
+			iterator.moveToNextEndpoint();
 		}
-		while (result && isInvalid());
-
-		return result;
+		while (!isFinished() && isWrongType());
 	}
 
-	bool isInvalid() const noexcept
+
+	bool isFinished() const noexcept
 	{
-		return getEndpoint().getType() != type;
+		return iterator.isFinished();
 	}
 
 
-	Endpoint getEndpoint() const noexcept
+	const Endpoint& getEndpoint() const noexcept
 	{
 		return iterator.getEndpoint();
 	}
@@ -92,6 +100,7 @@ public:
 	{
 	}
 
+
 	ShiftingIterator(Iterator iterator, Timestamp delta, Endpoint::Type fromType, Endpoint::Type toType) noexcept
 	:
 		iterator(iterator),
@@ -99,10 +108,18 @@ public:
 	{
 	}
 
-	bool next() noexcept
+
+	void moveToNextEndpoint() noexcept
 	{
-		return iterator.next();
+		iterator.moveToNextEndpoint();
 	}
+
+
+	bool isFinished() const noexcept
+	{
+		return iterator.isFinished();
+	}
+
 
 	Endpoint getEndpoint() const noexcept
 	{
@@ -116,7 +133,7 @@ template <typename Iterator1, typename Iterator2>
 class MergingIterator
 {
 private:
-	Iterator1 iterator1;
+	Iterator1 iterator1; // finishes always before the second iterator
 	Iterator2 iterator2;
 	Endpoint endpoint;
 
@@ -126,25 +143,37 @@ public:
 		iterator1(iterator1),
 		iterator2(iterator2)
 	{
-		next();
+		assert(iterator1.getEndpoint() < iterator2.getEndpoint());
+
+		moveToNextEndpoint();
 	}
 
 
-	bool next() noexcept
+	void moveToNextEndpoint() noexcept
 	{
-		if (iterator1.getEndpoint() < iterator2.getEndpoint())
+		auto endpoint1 = iterator1.getEndpoint();
+		auto endpoint2 = iterator2.getEndpoint();
+
+		if (!iterator1.isFinished() && endpoint1 < endpoint2)
 		{
-			endpoint = iterator1.getEndpoint();
-			return iterator1.next();
+			endpoint = endpoint1;
+			iterator1.moveToNextEndpoint();
 		}
 		else
 		{
-			endpoint = iterator2.getEndpoint();
-			return iterator2.next();
+			endpoint = endpoint2;
+			iterator2.moveToNextEndpoint();
 		}
 	}
 
-	Endpoint getEndpoint() const noexcept
+
+	bool isFinished() const noexcept
+	{
+		return iterator2.isFinished();
+	}
+
+
+	const Endpoint& getEndpoint() const noexcept
 	{
 		return endpoint;
 	}

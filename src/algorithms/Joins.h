@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limits>
-#include "algorithms/internal/Joins2.h"
+#include "Joins2.h"
 
 
 

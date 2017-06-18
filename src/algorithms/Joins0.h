@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 #include <iostream>
-#include "algorithms/internal/Iterators.h"
+#include "Iterators.h"
 
 
 
@@ -15,7 +15,7 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 	{
 		if (comp(itR.getEndpoint(), itS.getEndpoint()))
 		{
-			Endpoint endpointR = itR.getEndpoint();
+			const Endpoint& endpointR = itR.getEndpoint();
 			TID tid = endpointR.getTID();
 
 			if (endpointR.isStart())
@@ -23,7 +23,8 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 			else
 				activeR.erase(tid);
 
-			if (!itR.next())
+			itR.moveToNextEndpoint();
+			if (itR.isFinished())
 				break;
 		}
 		else
@@ -32,7 +33,8 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 			for (const auto& r : activeR)
 				consumer(r.second, s);
 
-			if (!itS.next())
+			itS.moveToNextEndpoint();
+			if (itS.isFinished())
 				break;
 		}
 	}

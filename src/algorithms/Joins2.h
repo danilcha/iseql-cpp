@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithms/internal/Joins1.h"
+#include "Joins1.h"
 
 
 
@@ -25,6 +25,8 @@ void beforeJoin(const Relation& R, const Relation& S, Timestamp delta, const Con
 {
 	constexpr auto START = Endpoint::Type::START;
 	constexpr auto END   = Endpoint::Type::END;
+
+	assert(delta > 0);
 
 	const Index& index = R.getIndex();
 

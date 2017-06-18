@@ -1,6 +1,6 @@
 #include <iostream>
 #include "algorithms/Joins.h"
-
+#include "MainBefore.h"
 
 
 
@@ -16,29 +16,32 @@ int main()
 		std::cout << "Debug" << std::endl;
 	#endif
 
-	Relation R = {
-		{1,  5, 1},
-		{1, 10, 2},
-		{7, 11, 3},
-		{9, 10, 4},
-	};
-	Relation S = {
-		{2,  2, 1},
-		{3, 12, 2},
-		{4,  5, 3},
-		{5,  6, 4},
-		{8,  9, 5},
-	};
 
-	Index indexR; indexR.buildFor(R);
-	Index indexS; indexS.buildFor(R);
+	mainBefore();
 
-	R.setIndex(indexR);
-	S.setIndex(indexS);
-
-
-	startPrecedingJoin(R, S, [] (const Tuple& r, const Tuple& s)
-	{
-		std::cout << r << s << std::endl;
-	});
+//	Relation R = {
+//		{1,  5, 1},
+//		{1, 10, 2},
+//		{7, 11, 3},
+//		{9, 10, 4},
+//	};
+//	Relation S = {
+//		{2,  2, 1},
+//		{3, 12, 2},
+//		{4,  5, 3},
+//		{5,  6, 4},
+//		{8,  9, 5},
+//	};
+//
+//	Index indexR; indexR.buildFor(R);
+//	Index indexS; indexS.buildFor(S);
+//
+//	R.setIndex(indexR);
+//	S.setIndex(indexS);
+//
+//
+//	startPrecedingJoin(R, S, [] (const Tuple& r, const Tuple& s)
+//	{
+//		std::cout << r << s << std::endl;
+//	});
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "algorithms/internal/Joins0.h"
+#include "Joins0.h"
 
 
 

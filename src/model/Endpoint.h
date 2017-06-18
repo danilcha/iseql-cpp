@@ -81,12 +81,12 @@ public:
 	}
 
 
-	static Timestamp calculateShiftArgument(Timestamp delta)
+	static constexpr Timestamp calculateShiftArgument(Timestamp delta)
 	{
 		return delta << 1;
 	}
 
-	static Timestamp calculateShiftArgument(Timestamp delta, Type fromType, Type toType)
+	static constexpr Timestamp calculateShiftArgument(Timestamp delta, Type fromType, Type toType)
 	{
 		return calculateShiftArgument(delta) + static_cast<Timestamp>(toType) - static_cast<Timestamp>(fromType);
 	}
