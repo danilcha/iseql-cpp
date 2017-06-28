@@ -7,8 +7,8 @@
 
 static void mainBefore()
 {
-	auto R = Relation::generateUniform(10'000'000, 1, 100, 1, 100'000);
-	auto S = Relation::generateUniform(10'000'000, 1, 100, 1, 100'000);
+	auto R = Relation::generateUniform(1'000'000, 1, 19, 1, 100'000, 123123);
+	auto S = Relation::generateUniform(1'000'000, 1, 19, 1, 100'000, 123);
 
 
 	Experiments experiments;

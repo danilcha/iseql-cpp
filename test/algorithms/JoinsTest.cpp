@@ -263,7 +263,7 @@ TEST_F(Joins, reverseDuringWithDeltaAndEpsilon)
 
 
 
-TEST_F(Joins, beforeJoin)
+TEST_F(Joins, before)
 {
 	beforeJoin(R, S, 3, consumer);
 
@@ -274,7 +274,7 @@ TEST_F(Joins, beforeJoin)
 
 
 
-TEST_F(Joins, afterJoin)
+TEST_F(Joins, after)
 {
 	afterJoin(R, S, 2, consumer);
 
