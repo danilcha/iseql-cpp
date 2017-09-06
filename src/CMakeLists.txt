@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.4)
 
-project(ideql CXX)
-
 include_directories(.)
 
 
@@ -30,8 +28,10 @@ add_executable(iseql
 		algorithms/Joins.h
 		algorithms/JoinsInlined.h
 
-		util/Timer.h
+		util/Arguments.h
 		util/Experiments.h
+		util/String.h
+		util/Timer.h
 
 		MainBefore.h
 

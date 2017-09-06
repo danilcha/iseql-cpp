@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.4)
 
-project(iseql CXX)
+project(iseql-cpp CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_LIBCPP_DEBUG=0 -D_LIBCPP_DEBUG2=0")
@@ -23,3 +23,20 @@ endif()
 
 add_subdirectory(src)
 add_subdirectory(test)
+
+
+
+
+
+add_custom_target(upload-to-ironmaiden
+	COMMAND rsync -aPvz
+		--exclude='.*' --exclude=results --exclude=target
+		${CMAKE_CURRENT_SOURCE_DIR}/
+		im:iseql-cpp)
+
+
+add_custom_target(downloads-results-from-ironmaiden
+	COMMAND rsync -aPvz
+		--exclude='.*'
+		im:iseql-cpp/
+		${CMAKE_CURRENT_SOURCE_DIR}/results)

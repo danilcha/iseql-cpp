@@ -1,10 +1,11 @@
 #include <iostream>
+#include "util/Arguments.h"
 #include "algorithms/Joins.h"
 #include "MainBefore.h"
 
 
 
-int main()
+int main(int /*argc*/, const char* argv[])
 {
 	std::cout << "ISEQL    ";
 	std::cout << sizeof(size_t) * 8 << "-bit    ";
@@ -16,8 +17,9 @@ int main()
 		std::cout << "Debug" << std::endl;
 	#endif
 
+	Arguments arguments{argv};
 
-	mainBefore();
+	mainBefore(arguments);
 
 //	Relation R = {
 //		{1,  5, 1},
