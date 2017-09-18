@@ -9,7 +9,7 @@
 template <typename IteratorR, typename IteratorS, typename Compare, typename Consumer>
 void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS, Compare comp, const Consumer& consumer)
 {
-	GaplessHashMap<TID, Tuple> activeR(1024);
+	GaplessHashMap<TID, Tuple> activeR(32);
 
 	for (;;)
 	{

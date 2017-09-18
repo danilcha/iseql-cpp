@@ -27,6 +27,7 @@ add_executable(iseql
 		algorithms/Joins2.h
 		algorithms/Joins.h
 		algorithms/JoinsInlined.h
+		algorithms/LeungMuntzJoins.h
 
 		util/Arguments.h
 		util/Experiments.h
@@ -34,8 +35,10 @@ add_executable(iseql
 		util/Timer.h
 
 		MainBefore.h
+		MainLeungMuntz.h
 
 		containers/GaplessHashMap.h
+		containers/GaplessList.h
 		containers/Util.h
 
 )

@@ -2,6 +2,7 @@
 #include "util/Arguments.h"
 #include "algorithms/Joins.h"
 #include "MainBefore.h"
+#include "MainLeungMuntz.h"
 
 
 
@@ -19,7 +20,15 @@ int main(int /*argc*/, const char* argv[])
 
 	Arguments arguments{argv};
 
-	mainBefore(arguments);
+	std::string command = arguments.getCurrentArgAndSkipIt("Command");
+
+	if (command == "before")
+		mainBefore(arguments);
+	else
+	if (command == "leung-muntz")
+		mainLeungMuntz(arguments);
+	else
+		arguments.error("Invalid command ", command);
 
 //	Relation R = {
 //		{1,  5, 1},

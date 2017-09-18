@@ -73,5 +73,25 @@ public:
 	}
 
 
+
+	template <typename OffsetDistribution, typename DurationDistribution>
+	static Relation generate(size_t n, OffsetDistribution& offsetDistribution,
+		DurationDistribution& durationDistribution, SeedType seed = RandomEngine::default_seed)
+	{
+		Relation result;
+		result.reserve(n);
+
+		RandomEngine generator(seed);
+
+		for (size_t i = 0; i < n; i++)
+		{
+			Timestamp duration = durationDistribution(generator);
+			Timestamp begin    = offsetDistribution(generator);
+			Timestamp end      = begin + duration - 1;
+			result.emplace_back(begin, end);
+		}
+
+		return result;
+	}
 };
 

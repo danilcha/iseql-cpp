@@ -41,6 +41,14 @@ void reverseStartPrecedingJoin(const Relation& R, const Relation& S, const Consu
 
 
 template <typename Consumer>
+void reverseStartPrecedingStrictJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
+{
+	startPrecedingStrictJoin(S, R, makeReversingConsumer(consumer));
+}
+
+
+
+template <typename Consumer>
 void endFollowingJoin(const Relation& R, const Relation& S, Timestamp epsilon, const Consumer& consumer) noexcept
 {
 	endFollowingJoin(R, S, [epsilon, &consumer] (const Tuple& r, const Tuple& s)
@@ -56,6 +64,14 @@ template <typename Consumer>
 void reverseEndFollowingJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
 {
 	endFollowingJoin(S, R, makeReversingConsumer(consumer));
+}
+
+
+
+template <typename Consumer>
+void reverseEndFollowingStrictJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
+{
+	endFollowingStrictJoin(S, R, makeReversingConsumer(consumer));
 }
 
 
@@ -106,6 +122,18 @@ void duringJoin(const Relation& R, const Relation& S, const Consumer& consumer) 
 	reverseStartPrecedingJoin(R, S, [&consumer] (const Tuple& r, const Tuple& s)
 	{
 		if (r.end <= s.end)
+			consumer(r, s);
+	});
+}
+
+
+
+template <typename Consumer>
+void reverseDuringStrictJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
+{
+	startPrecedingStrictJoin(R, S, [&consumer] (const Tuple& r, const Tuple& s)
+	{
+		if (s.end < r.end)
 			consumer(r, s);
 	});
 }

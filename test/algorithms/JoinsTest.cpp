@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "algorithms/Joins.h"
+#include "algorithms/LeungMuntzJoins.h"
 
 
 using testing::Test;
@@ -82,6 +83,26 @@ TEST_F(Joins, startPreceding)
 
 
 
+TEST_F(Joins, startPrecedingStrict)
+{
+	startPrecedingStrictJoin(R, S, consumer);
+
+	EXPECT_THAT(result, UnorderedElementsAre(
+		Pair(1, 1),
+		Pair(1, 2),
+		Pair(1, 3),
+		Pair(1, 4),
+		Pair(2, 1),
+		Pair(2, 2),
+		Pair(2, 3),
+		Pair(2, 4),
+		Pair(2, 5),
+		Pair(3, 5)
+	));
+}
+
+
+
 TEST_F(Joins, reverseStartPreceding)
 {
 	reverseStartPrecedingJoin(S, R, consumer);
@@ -122,6 +143,23 @@ TEST_F(Joins, endFollowing)
 	EXPECT_THAT(result, UnorderedElementsAre(
 		Pair(1, 1),
 		Pair(1, 3),
+		Pair(2, 1),
+		Pair(2, 3),
+		Pair(2, 4),
+		Pair(2, 5),
+		Pair(3, 5),
+		Pair(4, 5)
+	));
+}
+
+
+
+TEST_F(Joins, endFollowingStrict)
+{
+	endFollowingStrictJoin(R, S, consumer);
+
+	EXPECT_THAT(result, UnorderedElementsAre(
+		Pair(1, 1),
 		Pair(2, 1),
 		Pair(2, 3),
 		Pair(2, 4),
@@ -222,6 +260,8 @@ TEST_F(Joins, during)
 
 
 
+
+
 TEST_F(Joins, duringWithDelta)
 {
 	duringJoin(R, S, 4, UNBOUND, consumer);
@@ -248,6 +288,35 @@ TEST_F(Joins, reverseDuring)
 	));
 }
 
+
+TEST_F(Joins, reverseDuringStrict)
+{
+	reverseDuringStrictJoin(R, S, consumer);
+
+	EXPECT_THAT(result, UnorderedElementsAre(
+		Pair(1, 1),
+		Pair(2, 1),
+		Pair(2, 3),
+		Pair(2, 4),
+		Pair(2, 5),
+		Pair(3, 5)
+	));
+}
+
+
+TEST_F(Joins, reverseDuringStrictLM)
+{
+	leungMuntzReverseDuringStrictJoin(R, S, consumer);
+
+	EXPECT_THAT(result, UnorderedElementsAre(
+		Pair(1, 1),
+		Pair(2, 1),
+		Pair(2, 3),
+		Pair(2, 4),
+		Pair(2, 5),
+		Pair(3, 5)
+	));
+}
 
 
 TEST_F(Joins, reverseDuringWithDeltaAndEpsilon)
