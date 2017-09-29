@@ -17,6 +17,8 @@ public:
 	Timestamp end;   // inclusive
 
 public:
+	Interval() noexcept {}
+
 	Interval(Timestamp start, Timestamp end) noexcept
 	:
 		start(start),

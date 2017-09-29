@@ -15,8 +15,8 @@ void leungMuntzReverseDuringStrictJoin(const Relation& X, const Relation& Y, con
 			consumer(x, y);
 	};
 
-	double tauX = (X[X.size() - 1].start - X[0].start) / (X.size() - 1.0);
-	double tauY = (Y[Y.size() - 1].start - Y[0].start) / (Y.size() - 1.0);
+	double tauX = (X[X.size() - 1].start - X[0].start) / ((double) X.size() - 1.0);
+	double tauY = (Y[Y.size() - 1].start - Y[0].start) / ((double) Y.size() - 1.0);
 
 	GaplessList<Tuple> workspaceY;
 	GaplessList<Tuple> workspaceX;

@@ -11,6 +11,8 @@ private:
 
 
 public:
+	Tuple() noexcept {}
+
 	Tuple(Timestamp start, Timestamp end) noexcept
 	:
 		Interval(start, end)

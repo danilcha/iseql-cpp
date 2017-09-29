@@ -41,14 +41,12 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 	{
 //		R = RelationGenerator::generateUniform((unsigned) 1e5, 1, (unsigned) 6e2, 1, (unsigned) 1e9, 1232398);
 //		S = RelationGenerator::generateUniform((unsigned) 1e4, 1, (unsigned) 1e2, 1, (unsigned) 1e9, 345);
-//		R = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 1232398);
-//		S = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 345);
-		R = RelationGenerator::generateExponential(3, 1e-4, 1, 1'000'000, 1232398);
-		S = RelationGenerator::generateExponential(3, 1e-4, 1, 1'000'000, 345);
+		R = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 1232398);
+		S = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 345);
 	}
 
 
-	auto disabledExperiments = "";//arguments.getCurrentArgAndSkipIt("comma-separated list of disabled tests");
+	auto disabledExperiments = "lm0";//arguments.getCurrentArgAndSkipIt("comma-separated list of disabled tests");
 	Experiments experiments(disabledExperiments);
 
 	experiments.prepare("sort", "", [&]
@@ -68,10 +66,10 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 	R.setIndex(indexR);
 	S.setIndex(indexS);
 
-	for (const auto& item : R)
-		std::cout << "r: " << item << std::endl;
-	for (const auto& item : S)
-		std::cout << "s: " << item << std::endl;
+//	for (const auto& item : R)
+//		std::cout << "r: " << item << std::endl;
+//	for (const auto& item : S)
+//		std::cout << "s: " << item << std::endl;
 
 	experiments.experiment("danila", "index", [&]
 	{
@@ -81,14 +79,14 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 	});
 
 
-	experiments.experiment("lm0", "index", [&]
+	experiments.experiment("lm0", "sort", [&]
 	{
 		Timestamp accum = 0;
 		leungMuntzReverseDuringStrictJoinOld(R, S, Workload{accum});
 		return accum;
 	});
 
-	experiments.experiment("lm", "index", [&]
+	experiments.experiment("lm", "sort", [&]
 	{
 		Timestamp accum = 0;
 		leungMuntzReverseDuringStrictJoin(R, S, Workload{accum});

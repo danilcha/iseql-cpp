@@ -1,18 +1,21 @@
 cmake_minimum_required(VERSION 2.8.4)
+project(ResultProcessor CXX)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-global-constructors")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-exit-time-destructors")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
 
-
-add_executable(result-processor result-processor.cpp Table.h TableIO.h FileUtil.h)
-
-
-#set(Boost_USE_STATIC_LIBS        ON) # only find static libs
-set(Boost_USE_MULTITHREADED OFF)
-#set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost 1.36.0 COMPONENTS filesystem)
-if (Boost_FOUND)
-	include_directories(${Boost_INCLUDE_DIRS})
-	target_link_libraries(result-processor ${Boost_LIBRARIES})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wall -Wextra -Wconversion")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -Wno-weak-vtables -Wno-missing-noreturn -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-shadow -Wno-old-style-cast -Wno-missing-prototypes -Wno-padded")
 endif()
+
+
+set(SOURCE_FILES
+
+		result-processor.cpp
+
+)
+
+
+add_executable(result-processor ${SOURCE_FILES})
+

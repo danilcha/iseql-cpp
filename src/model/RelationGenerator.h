@@ -87,11 +87,6 @@ public:
 
 		RandomEngine generator(seed);
 
-		std::cout << generator() << std::endl;
-		std::cout << generator() << std::endl;
-		std::cout << generator() << std::endl;
-		std::cout << generator() << std::endl;
-
 //		Tuple::Value uCharPayload = 0;
 		for (size_t i = 0; i < n; i++)
 		{

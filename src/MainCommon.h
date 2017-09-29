@@ -41,7 +41,7 @@ inline Relation getRelation(Arguments& arguments, RelationGenerator::SeedType se
 		auto count = arguments.getCurrentArgAsDoubleAndSkipIt("tuple count");
 		auto max   = arguments.getCurrentArgAsDoubleAndSkipIt("max tuple length");
 		std::cout << "generating " << count << " uniform tuples with max length " << max  << std::flush;
-		result = RelationGenerator::generateUniform(size_t(count), 1, Timestamp(max), 1, Timestamp(1e9), seed);
+		result = RelationGenerator::generateUniform(size_t(count), 1, Timestamp(max), 1, Timestamp(1e6), seed);
 
 	}
 	else
@@ -51,7 +51,7 @@ inline Relation getRelation(Arguments& arguments, RelationGenerator::SeedType se
 		auto max   = arguments.getCurrentArgAsDoubleAndSkipIt("--uni max tuple length analog");
 		auto avg   = max / 2;
 		std::cout << "generating " << count << " exp tuples with avg length " << avg << std::flush;
-		result = RelationGenerator::generateExponential(size_t(count), 1/avg, 1, Timestamp(1e9), seed);
+		result = RelationGenerator::generateExponential(size_t(count), 1/avg, 1, Timestamp(1e6), seed);
 	}
 	else
 		arguments.error("Unknown relation source ", type);
