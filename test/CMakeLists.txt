@@ -21,6 +21,6 @@ add_executable(tests
 	algorithms/JoinsInlinedTest.cpp
 	algorithms/JoinsLMTest.cpp
 	containers/GaplessHashMapTest.cpp
-)
+		../src/model/RelationGenerator.h)
 target_link_libraries(tests gmock_main)
 add_test(NAME tests COMMAND tests)

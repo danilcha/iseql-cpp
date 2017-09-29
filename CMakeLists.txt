@@ -23,20 +23,21 @@ endif()
 
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(result-processor)
 
 
 
-
+SET(MY_REMOTE_LOCATION im:iseql-cpp)
 
 add_custom_target(upload-to-ironmaiden
 	COMMAND rsync -aPvz
 		--exclude='.*' --exclude=results --exclude=target
 		${CMAKE_CURRENT_SOURCE_DIR}/
-		im:iseql-cpp)
+		${MY_REMOTE_LOCATION})
 
 
 add_custom_target(downloads-results-from-ironmaiden
 	COMMAND rsync -aPvz
 		--exclude='.*'
-		im:iseql-cpp/
+		${MY_REMOTE_LOCATION}/results/
 		${CMAKE_CURRENT_SOURCE_DIR}/results)

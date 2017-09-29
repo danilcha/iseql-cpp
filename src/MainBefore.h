@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <model/RelationGenerator.h>
 #include "util/Experiments.h"
 #include "algorithms/JoinsInlined.h"
 
@@ -22,8 +23,8 @@ static void timer(Code code)
 
 static void mainBefore(Arguments& arguments)
 {
-	auto R = Relation::generateUniform(1'000'000, 1, 19, 1, 100'000, 123123);
-	auto S = Relation::generateUniform(1'000'000, 1, 19, 1, 100'000, 123);
+	auto R = RelationGenerator::generateUniform(1'000'000, 1, 19, 1, 100'000, 123123);
+	auto S = RelationGenerator::generateUniform(1'000'000, 1, 19, 1, 100'000, 123);
 
 	Index indexR(R);
 	Index indexS(S);

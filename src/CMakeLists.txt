@@ -35,10 +35,11 @@ add_executable(iseql
 		util/Timer.h
 
 		MainBefore.h
-		MainLeungMuntz.h
+		MainCommon.h
+		MainReverseDuringJoin.h
 
 		containers/GaplessHashMap.h
 		containers/GaplessList.h
 		containers/Util.h
 
-)
+		model/RelationGenerator.h)
