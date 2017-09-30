@@ -90,13 +90,19 @@ void vary_cardinality(const std::string& output_file_name,
 {
 	generate_data_file(output_file_name,
 	{
-		{"1.00e3", result_file_prefix + "1e3" + result_file_suffix},
-		{"1.00e4", result_file_prefix + "1e4" + result_file_suffix},
-		{"1.00e5", result_file_prefix + "1e5" + result_file_suffix},
-		{"1.00e6", result_file_prefix + "1e6" + result_file_suffix},
-		{"1.00e7", result_file_prefix + "1e7" + result_file_suffix},
-		{"1.00e8", result_file_prefix + "1e8" + result_file_suffix},
-		{"1.00e9", result_file_prefix + "1e9" + result_file_suffix},
+		{"1.00e3", result_file_prefix + "1e3"    + result_file_suffix},
+		{"3.16e3", result_file_prefix + "3.16e3" + result_file_suffix},
+		{"1.00e4", result_file_prefix + "1e4"    + result_file_suffix},
+		{"3.16e4", result_file_prefix + "3.16e4" + result_file_suffix},
+		{"1.00e5", result_file_prefix + "1e5"    + result_file_suffix},
+		{"3.16e5", result_file_prefix + "3.16e5" + result_file_suffix},
+		{"1.00e6", result_file_prefix + "1e6"    + result_file_suffix},
+		{"3.16e6", result_file_prefix + "3.16e6" + result_file_suffix},
+		{"1.00e7", result_file_prefix + "1e7"    + result_file_suffix},
+		{"3.16e7", result_file_prefix + "3.16e7" + result_file_suffix},
+		{"1.00e8", result_file_prefix + "1e8"    + result_file_suffix},
+		{"3.16e8", result_file_prefix + "3.16e8" + result_file_suffix},
+		{"1.00e9", result_file_prefix + "1e9"    + result_file_suffix},
 	});
 }
 
@@ -107,7 +113,7 @@ void main__()
 {
 	output_dir = "../iseql-article/data";
 
-	result_dir = "results/cyprus3";
+	result_dir = "results/cyprus32";
 
 	vary_cardinality("reverse-during-w1e1.txt", "reverse-during-", "-1e1.txt");
 	vary_cardinality("reverse-during-w1e2.txt", "reverse-during-", "-1e2.txt");
@@ -115,6 +121,23 @@ void main__()
 	vary_cardinality("reverse-during-w1e4.txt", "reverse-during-", "-1e4.txt");
 	vary_cardinality("reverse-during-w1e5.txt", "reverse-during-", "-1e5.txt");
 	vary_cardinality("reverse-during-w1e6.txt", "reverse-during-", "-1e6.txt");
+
+
+	generate_data_file("reverse-during-rw.txt",
+	{
+		{"flight", "rw-flight.txt"},
+		{"inc",    "rw-inc.txt"   },
+		{"web",    "rw-web.txt"   },
+		{"basf",   "rw-basf.txt"  },
+		{"feed",   "rw-big.txt"   },
+		{"dasa",   "rw-dasa.txt"  },
+	});
+
+
+
+
+
+
 
 }
 

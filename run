@@ -89,28 +89,41 @@ experiment()
 
 
 
+experiment rw-flight reverse-during --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"                    --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"
+experiment rw-inc    reverse-during --file "$DATA_DIR/incumbent-norm.txt"                        --file "$DATA_DIR/incumbent-norm.txt"
 
 
 resetDisabledExperiments
-for c in 1e3 1e4 1e5 1e6 1e7 1e8
+for c in 1e3 3.16e3 1e4 3.16e4 1e5 3.16e5 1e6 3.16e6 1e7 3.16e7 1e8 3.16e8 1e9
 do
 	for l in 1e1 1e2 1e3 1e4 1e5 1e6
 	do
-		if [[ "$c" == "1e7" && ("$l" == "1e5" || "$l" == "1e6") ]]
+		if [[ "$c" == "3.16e6" && ("$l" == "1e6") ]]
 		then
 			continue
 		fi
-		if [[ "$c" == "1e8" && ("$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+		if [[ "$c" == "1e7"    && ("$l" == "1e5" || "$l" == "1e6") ]]
 		then
 			continue
 		fi
+		if [[ "$c" == "3.16e7" && ("$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+		then
+			continue
+		fi
+		if [[ "$c" == "1e8"    && ("$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+		then
+			continue
+		fi
+		if [[ "$c" == "3.16e8" && ("$l" == "1e2" || "$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+		then
+			continue
+		fi
+
 		experiment  "reverse-during-$c-$l" reverse-during --exp $c $l --exp $c $l
 	done
 done
 
 
-experiment rw-flight reverse-during --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"                    --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"
-experiment rw-inc    reverse-during --file "$DATA_DIR/incumbent-norm.txt"                        --file "$DATA_DIR/incumbent-norm.txt"
 experiment rw-web    reverse-during --file "$DATA_DIR/webkit-norm.txt"                           --file "$DATA_DIR/webkit-norm.txt"
 experiment rw-basf   reverse-during --basf "$DATA_DIR/basf_nono.import"                          --basf "$DATA_DIR/basf_nono.import"
 experiment rw-big    reverse-during --file "$DATA_DIR/big_table-norm.txt"                        --file "$DATA_DIR/big_table-norm.txt"

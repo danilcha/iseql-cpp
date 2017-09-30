@@ -9,6 +9,7 @@ class Tuple : public Interval
 private:
 	int id;
 
+	char data[32 - 12];
 
 public:
 	Tuple() noexcept {}

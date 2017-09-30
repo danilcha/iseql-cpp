@@ -37,7 +37,7 @@ add_custom_target(upload-to-ironmaiden
 
 
 add_custom_target(downloads-results-from-ironmaiden
-	COMMAND rsync -aPvz
+	COMMAND rsync -aPvzL
 		--exclude='.*'
 		${MY_REMOTE_LOCATION}/results/
 		${CMAKE_CURRENT_SOURCE_DIR}/results)
