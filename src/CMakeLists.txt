@@ -37,6 +37,7 @@ add_executable(iseql
 		MainBefore.h
 		MainCommon.h
 		MainReverseDuringJoin.h
+		MainStartPrecedingJoin.h
 
 		containers/GaplessHashMap.h
 		containers/GaplessList.h

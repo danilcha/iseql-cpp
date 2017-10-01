@@ -30,7 +30,7 @@ static void split(const std::string& s, char delimiter, std::vector<std::string>
 }
 
 
-static std::vector<std::string> split(const std::string& s, char delimiter)
+inline static std::vector<std::string> split(const std::string& s, char delimiter)
 {
 	std::vector<std::string> result;
 	split(s, delimiter, result);

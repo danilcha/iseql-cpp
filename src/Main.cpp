@@ -3,6 +3,7 @@
 #include "algorithms/Joins.h"
 #include "MainBefore.h"
 #include "MainReverseDuringJoin.h"
+#include "MainStartPrecedingJoin.h"
 
 
 
@@ -27,6 +28,9 @@ int main(int /*argc*/, const char* argv[])
 	else
 	if (command == "reverse-during")
 		mainReverseDuringJoin(arguments);
+	else
+	if (command == "start-preceding")
+		mainStartPrecedingJoin(arguments);
 	else
 		arguments.error("Invalid command ", command);
 

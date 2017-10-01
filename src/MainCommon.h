@@ -61,3 +61,15 @@ inline Relation getRelation(Arguments& arguments, RelationGenerator::SeedType se
 	std::cout << std::endl;
 	return result;
 }
+
+
+
+struct Workload
+{
+	Timestamp& accum;
+
+	void operator()(const Tuple& r, const Tuple& s) const noexcept
+	{
+		accum += r.start + s.end;
+	}
+};

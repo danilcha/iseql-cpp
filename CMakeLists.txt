@@ -28,12 +28,19 @@ add_subdirectory(result-processor)
 
 
 SET(MY_REMOTE_LOCATION im:iseql-cpp)
+SET(IL_REMOTE_LOCATION im:iseql-il)
 
 add_custom_target(upload-to-ironmaiden
 	COMMAND rsync -aPvz
 		--exclude='.*' --exclude=results --exclude=target
 		${CMAKE_CURRENT_SOURCE_DIR}/
 		${MY_REMOTE_LOCATION})
+
+add_custom_target(upload-to-ironlady
+	COMMAND rsync -aPvz
+		--exclude='.*' --exclude=results --exclude=target
+		${CMAKE_CURRENT_SOURCE_DIR}/
+		${IL_REMOTE_LOCATION})
 
 
 add_custom_target(downloads-results-from-ironmaiden

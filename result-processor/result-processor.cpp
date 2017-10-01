@@ -113,7 +113,7 @@ void main__()
 {
 	output_dir = "../iseql-article/data";
 
-	result_dir = "results/cyprus32";
+	result_dir = "results/cyprus3";
 
 	vary_cardinality("reverse-during-w1e1.txt", "reverse-during-", "-1e1.txt");
 	vary_cardinality("reverse-during-w1e2.txt", "reverse-during-", "-1e2.txt");
@@ -122,6 +122,12 @@ void main__()
 	vary_cardinality("reverse-during-w1e5.txt", "reverse-during-", "-1e5.txt");
 	vary_cardinality("reverse-during-w1e6.txt", "reverse-during-", "-1e6.txt");
 
+	vary_cardinality("start-preceding-w1e1.txt", "start-preceding-", "-1e1.txt");
+	vary_cardinality("start-preceding-w1e2.txt", "start-preceding-", "-1e2.txt");
+	vary_cardinality("start-preceding-w1e3.txt", "start-preceding-", "-1e3.txt");
+	vary_cardinality("start-preceding-w1e4.txt", "start-preceding-", "-1e4.txt");
+	vary_cardinality("start-preceding-w1e5.txt", "start-preceding-", "-1e5.txt");
+	vary_cardinality("start-preceding-w1e6.txt", "start-preceding-", "-1e6.txt");
 
 	generate_data_file("reverse-during-rw.txt",
 	{
@@ -131,6 +137,19 @@ void main__()
 		{"basf",   "rw-basf.txt"  },
 		{"feed",   "rw-big.txt"   },
 		{"dasa",   "rw-dasa.txt"  },
+		{"wi",     "rw-wi.txt"    },
+	});
+
+
+	generate_data_file("start-preceding-rw.txt",
+	{
+		{"flight", "rw-start-preceding-flight.txt"},
+		{"inc",    "rw-start-preceding-inc.txt"   },
+		{"web",    "rw-start-preceding-web.txt"   },
+		{"basf",   "rw-start-preceding-basf.txt"  },
+		{"feed",   "rw-start-preceding-big.txt"   },
+		{"dasa",   "rw-start-preceding-dasa.txt"  },
+		{"wi",     "rw-start-preceding-wi.txt"    },
 	});
 
 

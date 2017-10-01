@@ -8,11 +8,12 @@
 #include "algorithms/Joins.h"
 #include "algorithms/LeungMuntzJoins.h"
 
-//#include <unordered_set>
 
 
 
-inline void mainReverseDuringJoin(Arguments& arguments)
+
+
+inline void mainStartPrecedingJoin(Arguments& arguments)
 {
 	Relation R, S;
 
@@ -36,14 +37,6 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 		R = RelationGenerator::generateUniform(10'000, 1, 1000, 1, 10'000, 5904595);
 		S = RelationGenerator::generateUniform(10'000, 1, 1000, 1, 10'000, 58534);
 	}
-
-//	std::unordered_set<Timestamp> ts;
-//	for (const auto& r : R)
-//	{
-//		ts.insert(r.start);
-//		ts.insert(r.end);
-//	}
-//	std::cout << "Distinct: " << ts.size() << std::endl;
 
 
 	auto disabledExperiments = "lm0";//arguments.getCurrentArgAndSkipIt("comma-separated list of disabled tests");
@@ -74,22 +67,15 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 	experiments.experiment("danila", "index", [&]
 	{
 		Timestamp accum = 0;
-		reverseDuringStrictJoin(R, S, Workload{accum});
+		startPrecedingStrictJoin(R, S, Workload{accum});
 		return accum;
 	});
 
-
-	experiments.experiment("lm0", "sort", [&]
-	{
-		Timestamp accum = 0;
-		leungMuntzReverseDuringStrictJoinOld(R, S, Workload{accum});
-		return accum;
-	});
 
 	experiments.experiment("lm", "sort", [&]
 	{
 		Timestamp accum = 0;
-		leungMuntzReverseDuringStrictJoin(R, S, Workload{accum});
+		leungMuntzStartPrecedingStrictJoin(R, S, Workload{accum});
 		return accum;
 	});
 }
