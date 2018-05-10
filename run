@@ -92,10 +92,12 @@ experiment()
 experiment rw-flight reverse-during --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"                    --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"
 experiment rw-inc    reverse-during --file "$DATA_DIR/incumbent-norm.txt"                        --file "$DATA_DIR/incumbent-norm.txt"
 experiment rw-wi     reverse-during --file "$DATA_DIR/webkit-norm.txt"                           --file "$DATA_DIR/incumbent-norm.txt"
+experiment rw-bi     reverse-during --file "$DATA_DIR/big_table-norm.txt"                           --file "$DATA_DIR/incumbent-norm.txt"
 
 experiment rw-start-preceding-flight start-preceding --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"                    --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"
 experiment rw-start-preceding-inc    start-preceding --file "$DATA_DIR/incumbent-norm.txt"                        --file "$DATA_DIR/incumbent-norm.txt"
 experiment rw-start-preceding-wi     start-preceding --file "$DATA_DIR/webkit-norm.txt"                           --file "$DATA_DIR/incumbent-norm.txt"
+experiment rw-start-preceding-bi     start-preceding --file "$DATA_DIR/big_table-norm.txt"                           --file "$DATA_DIR/incumbent-norm.txt"
 
 
 resetDisabledExperiments

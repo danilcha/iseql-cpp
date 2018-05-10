@@ -74,7 +74,7 @@ void generate_data_file(const std::string& output_file_name, const std::vector<T
 
 		if (header != global_header)
 		{
-			std::cerr << "Invalid header\n"
+			std::cout << "Invalid header\n"
 					<< "Expected: " << global_header << "\n"
 					<< "Received: " << header << std::endl;
 		}
@@ -138,6 +138,7 @@ void main__()
 		{"feed",   "rw-big.txt"   },
 		{"dasa",   "rw-dasa.txt"  },
 		{"wi",     "rw-wi.txt"    },
+		{"fi",     "rw-bi.txt"    },
 	});
 
 
@@ -150,6 +151,7 @@ void main__()
 		{"feed",   "rw-start-preceding-big.txt"   },
 		{"dasa",   "rw-start-preceding-dasa.txt"  },
 		{"wi",     "rw-start-preceding-wi.txt"    },
+		{"fi",     "rw-start-preceding-bi.txt"    },
 	});
 
 

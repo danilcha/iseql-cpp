@@ -1,6 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All tests" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="iseql-cpp" TARGET_NAME="tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="iseql-cpp" RUN_TARGET_NAME="tests" TEST_MODE="SUITE_TEST">
-    <envs />
+  <configuration default="false" name="All tests" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="iseql-cpp" TARGET_NAME="tests" CONFIG_NAME="Release GCC" RUN_TARGET_PROJECT_NAME="iseql-cpp" RUN_TARGET_NAME="tests" TEST_MODE="SUITE_TEST">
     <method />
   </configuration>
 </component>
