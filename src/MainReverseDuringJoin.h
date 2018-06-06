@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+
 #include "util/Arguments.h"
 #include "util/Timer.h"
 #include "MainCommon.h"
@@ -33,8 +34,8 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 //		S = RelationGenerator::generateUniform((unsigned) 1e4, 1, (unsigned) 1e2, 1, (unsigned) 1e9, 345);
 //		R = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 1232398);
 //		S = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 345);
-		R = RelationGenerator::generateUniform(10'000, 1, 1000, 1, 10'000, 5904595);
-		S = RelationGenerator::generateUniform(10'000, 1, 1000, 1, 10'000, 58534);
+		R = RelationGenerator::generateUniform(5, 1, 10, 10, 99, 5904595);
+		S = RelationGenerator::generateUniform(5, 1, 10, 10, 99,   58534);
 	}
 
 //	std::unordered_set<Timestamp> ts;
@@ -46,7 +47,7 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 //	std::cout << "Distinct: " << ts.size() << std::endl;
 
 
-	auto disabledExperiments = "lm0";//arguments.getCurrentArgAndSkipIt("comma-separated list of disabled tests");
+	auto disabledExperiments = "-lm0";//arguments.getCurrentArgAndSkipIt("comma-separated list of disabled tests");
 	Experiments experiments(disabledExperiments);
 
 	experiments.prepare("sort", "", [&]
@@ -92,4 +93,19 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 		leungMuntzReverseDuringStrictJoin(R, S, Workload{accum});
 		return accum;
 	});
+
+	experiments.experiment("lm2", "sort", [&]
+	{
+		Timestamp accum = 0;
+		leungMuntzReverseDuringStrictJoin2(R, S, Workload{accum});
+		return accum;
+	});
+
+	#ifdef COUNTERS
+	experiments.addExperimentResult("lm-sel",   (double) lmCounterAfterSelection / lmCounterBeforeSelection);
+	experiments.addExperimentResult("lm-x-avg", (double) lmCounterActiveXCount / lmCounterActiveXCountTimes);
+	experiments.addExperimentResult("lm-y-avg", (double) lmCounterActiveYCount / lmCounterActiveXCountTimes);
+	experiments.addExperimentResult("lm-x-max", lmCounterActiveXMax);
+	experiments.addExperimentResult("lm-y-max", lmCounterActiveYMax);
+	#endif
 }

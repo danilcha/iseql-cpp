@@ -63,5 +63,10 @@ public:
 	{
 		return elements.empty();
 	}
+
+	size_t size() const noexcept
+	{
+		return elements.size();
+	}
 };
 

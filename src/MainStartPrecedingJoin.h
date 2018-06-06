@@ -34,7 +34,7 @@ inline void mainStartPrecedingJoin(Arguments& arguments)
 //		S = RelationGenerator::generateUniform((unsigned) 1e4, 1, (unsigned) 1e2, 1, (unsigned) 1e9, 345);
 //		R = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 1232398);
 //		S = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 345);
-		R = RelationGenerator::generateUniform(10'000, 1, 1000, 1, 10'000, 5904595);
+		R = RelationGenerator::generateUniform(10'0000, 1, 1000, 1, 10'000, 5904595);
 		S = RelationGenerator::generateUniform(10'000, 1, 1000, 1, 10'000, 58534);
 	}
 
@@ -76,6 +76,13 @@ inline void mainStartPrecedingJoin(Arguments& arguments)
 	{
 		Timestamp accum = 0;
 		leungMuntzStartPrecedingStrictJoin(R, S, Workload{accum});
+		return accum;
+	});
+
+	experiments.experiment("lm2", "sort", [&]
+	{
+		Timestamp accum = 0;
+		leungMuntzStartPrecedingStrictJoin2(R, S, Workload{accum});
 		return accum;
 	});
 }
