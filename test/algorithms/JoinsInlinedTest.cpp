@@ -30,6 +30,7 @@ protected:
 	#pragma clang diagnostic push
 	#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 	static void SetUpTestCase()
+	#pragma clang diagnostic pop
 	{
 		R = RelationGenerator::generateUniform(1000, 1, 100, 1, 10000, 453565455);
 		S = RelationGenerator::generateUniform(1000, 1, 100, 1, 10000, 585);
@@ -40,7 +41,6 @@ protected:
 		R.setIndex(indexR);
 		S.setIndex(indexS);
 	}
-	#pragma clang diagnostic pop
 
 //	virtual void TearDown()
 //	{
@@ -52,7 +52,7 @@ protected:
 
 TEST_F(JoinsInlined, before)
 {
-	for (Timestamp delta = 1; delta < 10; delta++)
+	for (Timestamp delta = 0; delta < 10; delta++)
 	{
 		result = 0;
 

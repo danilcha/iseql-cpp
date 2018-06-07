@@ -288,6 +288,10 @@ public:
 
 
 
+	size_t size() const noexcept
+	{
+		return values.size();
+	}
 
 
 

@@ -40,7 +40,7 @@ void beforeJoin(const Relation& R, const Relation& S, Timestamp delta, const Con
 	constexpr auto START = Endpoint::Type::START;
 	constexpr auto END   = Endpoint::Type::END;
 
-	assert(delta > 0);
+	assert(delta >= 0);
 
 	const Index& index = R.getIndex();
 
@@ -49,8 +49,8 @@ void beforeJoin(const Relation& R, const Relation& S, Timestamp delta, const Con
 		R,
 		S,
 		makeMergingIterator(
-			makeShiftingIterator(makeFilteringIterator(index, END), 1, END, START), // r.end + 1     -> r.start
-			makeShiftingIterator(makeFilteringIterator(index, END), delta)          // r.end + delta -> r.end
+			makeShiftingIterator(makeFilteringIterator(index, END), 0, END, START), // r.end -> r.start
+			makeShiftingIterator(makeFilteringIterator(index, END), delta + 1)      // r.end + delta + 1 -> r.end
 		),
 		consumer
 	);

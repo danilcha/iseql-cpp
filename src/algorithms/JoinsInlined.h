@@ -31,8 +31,8 @@ static Timestamp beforeJoinInlined(const Relation& R, const Relation& S, Timesta
 	auto itR2 = indexR.begin();
 	auto itS  = indexS.begin();
 
-	const auto itR1Shift = Endpoint::calculateShiftArgument(1, Endpoint::Type::END, Endpoint::Type::START);
-	const auto itR2Shift = Endpoint::calculateShiftArgument(delta);
+	const auto itR1Shift = Endpoint::calculateShiftArgument(0, Endpoint::Type::END, Endpoint::Type::START);
+	const auto itR2Shift = Endpoint::calculateShiftArgument(delta + 1);
 
 	while (itR1->isStart())
 		++itR1;

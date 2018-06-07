@@ -133,8 +133,18 @@ void reverseDuringStrictJoin(const Relation& R, const Relation& S, const Consume
 {
 	startPrecedingStrictJoin(R, S, [&consumer] (const Tuple& r, const Tuple& s)
 	{
+		#ifdef COUNTERS
+		myCounterBeforeSelection++;
+		#endif
+
 		if (s.end < r.end)
+		{
+			#ifdef COUNTERS
+			myCounterAfterSelection++;
+			#endif
+
 			consumer(r, s);
+		}
 	});
 }
 

@@ -35,7 +35,7 @@ public:
 		{
 			Timestamp duration = Distribution{durationMin, durationMax}(generator);
 			Timestamp begin    = Distribution{domainMin, domainMax - duration + 1}(generator);
-			Timestamp end      = begin + duration - 1;
+			Timestamp end      = begin + duration;
 			result.emplace_back(begin, end);
 		}
 
@@ -60,7 +60,7 @@ public:
 //		{
 //			Timestamp duration = durationDistribution(generator);
 //			Timestamp begin    = offsetDistribution(generator);
-//			Timestamp end      = begin + duration - 1;
+//			Timestamp end      = begin + duration;
 //			result.emplace_back(begin, end);
 //		}
 //
@@ -101,7 +101,7 @@ public:
 
 			Timestamp begin    = OffsetDistribution{domainMin, domainMax - beginAndEndDifference}(generator);
 			Timestamp end      = begin + beginAndEndDifference;
-			result.emplace_back(begin, end, i);
+			result.emplace_back(begin, end + 1, i);
 //			result.back().setValue(uCharPayload);
 //			++uCharPayload;
 		}
@@ -128,7 +128,7 @@ public:
 		while (in >> start >> end)
 		{
 			assert(start <= end);
-			result.emplace_back(start, end);
+			result.emplace_back(start, end + 1);
 //			result.back().setValue(uCharPayload);
 //			++uCharPayload;
 		}
@@ -155,7 +155,7 @@ public:
 		{
 			assert(start <= end);
 			int intValue = (int) ((value + 100) * 1000);
-			result.emplace_back(start, end + 1, intValue);
+			result.emplace_back(start, end, intValue);
 		}
 		return result;
 	}
@@ -201,7 +201,7 @@ public:
 			auto end   = std::stoi(fields.at(2));
 			auto value = std::stoi(fields.at(5)); // nolines
 
-			result.emplace_back(start, end + 1, value);
+			result.emplace_back(start, end, value);
 		}
 
 		return result;

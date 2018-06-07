@@ -34,8 +34,8 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 //		S = RelationGenerator::generateUniform((unsigned) 1e4, 1, (unsigned) 1e2, 1, (unsigned) 1e9, 345);
 //		R = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 1232398);
 //		S = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 345);
-		R = RelationGenerator::generateUniform(5, 1, 10, 10, 99, 5904595);
-		S = RelationGenerator::generateUniform(5, 1, 10, 10, 99,   58534);
+		R = RelationGenerator::generateUniform(12, 1, 3, 10, 30, 5904595);
+		S = RelationGenerator::generateUniform( 3, 1, 3, 10, 30,   58534);
 	}
 
 //	std::unordered_set<Timestamp> ts;
@@ -107,5 +107,8 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 	experiments.addExperimentResult("lm-y-avg", (double) lmCounterActiveYCount / lmCounterActiveXCountTimes);
 	experiments.addExperimentResult("lm-x-max", lmCounterActiveXMax);
 	experiments.addExperimentResult("lm-y-max", lmCounterActiveYMax);
+	experiments.addExperimentResult("my-sel",   (double) myCounterAfterSelection / myCounterBeforeSelection);
+	experiments.addExperimentResult("my-avg", (double) myCounterActiveCount / myCounterActiveCountTimes);
+	experiments.addExperimentResult("my-max", myCounterActiveMax);
 	#endif
 }

@@ -14,7 +14,7 @@ class Interval
 {
 public:
 	Timestamp start; // inclusive
-	Timestamp end;   // inclusive
+	Timestamp end;   // exclusive
 
 public:
 	Interval() noexcept {}
@@ -24,7 +24,7 @@ public:
 		start(start),
 		end(end)
 	{
-		assert(start <= end);
+		assert(start < end);
 	}
 
 
@@ -36,7 +36,7 @@ public:
 
 	bool overlaps(const Interval& other) const noexcept
 	{
-		return start <= other.end && other.start <= end;
+		return start < other.end && other.start < end;
 	}
 
 
@@ -48,7 +48,7 @@ public:
 
 	Timestamp getLength() const noexcept
 	{
-		return end - start + 1;
+		return end - start;
 	}
 
 
@@ -62,7 +62,7 @@ public:
 
 	friend std::ostream& operator << (std::ostream &out, const Interval& self)
 	{
-		return out << '[' << self.start << ',' << self.end << ']';
+		return out << '[' << self.start << ',' << self.end << ')';
 	}
 };
 

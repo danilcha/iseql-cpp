@@ -12,7 +12,7 @@ typedef unsigned TID;
 class Endpoint
 {
 public:
-	enum class Type : Timestamp {START = 0, END = 1};
+	enum class Type : Timestamp {END = 0, START = 1};
 
 private:
 	Timestamp timestampAndType;
@@ -71,13 +71,13 @@ public:
 
 	bool isStart() const noexcept
 	{
-		return getType() == Type::START;
+		return !isEnd();
 	}
 
 
 	bool isEnd() const noexcept
 	{
-		return !isStart();
+		return getType() == Type::END;
 	}
 
 

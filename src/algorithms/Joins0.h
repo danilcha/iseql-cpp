@@ -5,6 +5,14 @@
 #include "containers/GaplessHashMap.h"
 
 
+#ifdef COUNTERS
+static unsigned long long myCounterBeforeSelection   = 0;
+static unsigned long long myCounterAfterSelection    = 0;
+static unsigned long long myCounterActiveCount      = 0;
+static unsigned long long myCounterActiveCountTimes = 0;
+static size_t myCounterActiveMax    = 0;
+#endif
+
 
 template <typename IteratorR, typename IteratorS, typename Compare, typename Consumer>
 void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS, Compare comp, const Consumer& consumer)
@@ -22,6 +30,14 @@ void joinByS(const Relation& R, const Relation& S, IteratorR itR, IteratorS itS,
 				activeR.insert(tid, R[tid]);
 			else
 				activeR.erase(tid);
+
+
+			#ifdef COUNTERS
+			myCounterActiveCount += activeR.size();
+			myCounterActiveCountTimes++;
+			myCounterActiveMax = std::max(myCounterActiveMax, activeR.size());
+			#endif
+
 
 			itR.moveToNextEndpoint();
 			if (itR.isFinished())

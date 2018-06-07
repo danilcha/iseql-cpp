@@ -85,9 +85,17 @@ TEST_F(JoinsLM, reverseDuringStrict)
 	t.stopAndPrint();
 	std::cout << " " << result << "\n";
 
+	t.start();
+	result = 0;
+	leungMuntzReverseDuringStrictJoin2(R, S, consumer);
+	auto lmResult2 = result;
+	t.stopAndPrint();
+	std::cout << " " << result << "\n";
+
 
 
 	EXPECT_EQ(normalResult, lmResult);
+	EXPECT_EQ(normalResult, lmResult2);
 }
 
 
@@ -124,9 +132,17 @@ TEST_F(JoinsLM, startPrecedingStrict)
 	t.stopAndPrint();
 	std::cout << " " << result << "\n";
 
+	t.start();
+	result = 0;
+	leungMuntzStartPrecedingStrictJoin2(R, S, consumer);
+	auto lmResult2 = result;
+	t.stopAndPrint();
+	std::cout << " " << result << "\n";
+
 
 
 	EXPECT_EQ(normalResult, lmResult);
+	EXPECT_EQ(normalResult, lmResult2);
 }
 
 

@@ -32,7 +32,7 @@ public:
 
 	friend std::ostream& operator << (std::ostream &out, const Tuple& tuple)
 	{
-		return out << tuple.id << static_cast<const Interval&>(tuple);
+		return out << static_cast<const Interval&>(tuple) << ' ' << tuple.id;
 	}
 
 

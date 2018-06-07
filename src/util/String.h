@@ -9,7 +9,7 @@
 
 static void split(const std::string& s, char delimiter, std::vector<std::string>& result)
 {
-	std::stringstream ss(s);
+	std::istringstream ss(s);
 
 	size_t i = 0;
 	while (i < result.size() && std::getline(ss, result[i], delimiter))

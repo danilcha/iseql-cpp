@@ -17,6 +17,9 @@ static size_t lmCounterActiveYMax    = 0;
 #endif
 
 
+#define LM_VERBOSE
+
+
 template <typename ShouldReadX,
           typename ShouldReadY,
           typename CleanupTestForX,
@@ -30,10 +33,10 @@ void leungMuntzJoin(const Relation& X,
                     const CleanupTestForY& cleanupTestForY,
                     const CheckingConsumer& checkingConsumer) noexcept
 {
-//	auto tauX = static_cast<Timestamp>(( (X[X.size() - 1].start - X[0].start) / static_cast<double>(X.size() - 1) )) ;
-//	auto tauY = static_cast<Timestamp>(( (Y[Y.size() - 1].start - Y[0].start) / static_cast<double>(Y.size() - 1) )) ;
-	auto tauX = static_cast<Timestamp>(round( (X[X.size() - 1].start - X[0].start) / static_cast<double>(X.size() - 1) )) ;
-	auto tauY = static_cast<Timestamp>(round( (Y[Y.size() - 1].start - Y[0].start) / static_cast<double>(Y.size() - 1) )) ;
+//	auto tauX = 1 + static_cast<Timestamp>(( (X[X.size() - 1].start - X[0].start) / static_cast<double>(X.size() - 1) )) ;
+//	auto tauY = 1 + static_cast<Timestamp>(( (Y[Y.size() - 1].start - Y[0].start) / static_cast<double>(Y.size() - 1) )) ;
+	auto tauX = 1 + static_cast<Timestamp>(round( (X[X.size() - 1].start - X[0].start) / static_cast<double>(X.size() - 1) )) ;
+	auto tauY = 1 + static_cast<Timestamp>(round( (Y[Y.size() - 1].start - Y[0].start) / static_cast<double>(Y.size() - 1) )) ;
 
 	GaplessList<Tuple> workspaceY;
 	GaplessList<Tuple> workspaceX;
@@ -47,7 +50,9 @@ void leungMuntzJoin(const Relation& X,
 
 	bool shouldReadYNextIteration = false;
 
+	#ifdef LM_VERBOSE
 	std::cout << std::endl;
+	#endif
 
 	for (;;)
 	{
@@ -55,7 +60,9 @@ void leungMuntzJoin(const Relation& X,
 
 		if (shouldReadYNextIteration)
 		{
-			std::cout << "Reading Y " << *bufferY << std::endl;
+			#ifdef LM_VERBOSE
+			std::cout << "  Reading Y " << *bufferY << std::endl;
+			#endif
 			auto x = workspaceX.begin();
 			while (x != workspaceX.end())
 			{
@@ -63,7 +70,9 @@ void leungMuntzJoin(const Relation& X,
 
 				if (cleanupTestForX(*x, bufferY->start))
 				{
-					std::cout << "  Erase X " << *x << std::endl;
+					#ifdef LM_VERBOSE
+					std::cout << "    Erase X " << *x << std::endl;
+					#endif
 					workspaceX.erase(x);
 				}
 				else
@@ -80,7 +89,9 @@ void leungMuntzJoin(const Relation& X,
 		}
 		else
 		{
-			std::cout << "Reading X " << *bufferX << std::endl;
+			#ifdef LM_VERBOSE
+			std::cout << "  Reading X " << *bufferX << std::endl;
+			#endif
 
 			auto y = workspaceY.begin();
 			while (y != workspaceY.end())
@@ -89,7 +100,9 @@ void leungMuntzJoin(const Relation& X,
 
 				if (cleanupTestForY(*y, bufferX->start))
 				{
-					std::cout << "  Erase Y " << *y << std::endl;
+					#ifdef LM_VERBOSE
+					std::cout << "    Erase Y " << *y << std::endl;
+					#endif
 					workspaceY.erase(y);
 				}
 				else
@@ -160,7 +173,14 @@ void leungMuntzJoin(const Relation& X,
 						potentialPruneX++;
 			}
 
-			shouldReadYNextIteration = potentialPruneX > potentialPruneY;
+			#ifdef LM_VERBOSE
+			std::cout << "POTENTIAL PRUNE X " << potentialPruneX << " and Y " << potentialPruneY << std::endl;
+			#endif
+
+//			if (potentialPruneX == potentialPruneY)
+//				shouldReadYNextIteration = !shouldReadYNextIteration;
+//			else
+				shouldReadYNextIteration = potentialPruneX > potentialPruneY;
 		}
 
 		#ifdef COUNTERS
@@ -219,7 +239,7 @@ void leungMuntzStartPrecedingStrictJoin2(const Relation& X, const Relation& Y, c
 			lmCounterBeforeSelection++;
 			#endif
 
-			if (x.start < y.start && x.end >= y.start)
+			if (x.start < y.start && x.end > y.start)
 			{
 				#ifdef COUNTERS
 				lmCounterAfterSelection++;
@@ -235,7 +255,7 @@ void leungMuntzStartPrecedingStrictJoin2(const Relation& X, const Relation& Y, c
 template <typename Consumer>
 void leungMuntzReverseDuringStrictJoin(const Relation& X, const Relation& Y, const Consumer& consumer) noexcept
 {
-	auto consumeIfCovers = [&consumer] (const Tuple& x, const Tuple& y)
+	auto consumeIfOK = [&consumer] (const Tuple& x, const Tuple& y)
 	{
 		if (x.start < y.start && y.end < x.end)
 			consumer(x, y);
@@ -265,7 +285,7 @@ void leungMuntzReverseDuringStrictJoin(const Relation& X, const Relation& Y, con
 			auto x = workspaceX.begin();
 			while (x != workspaceX.end())
 			{
-				consumeIfCovers(*x, *bufferY);
+				consumeIfOK(*x, *bufferY);
 
 				if (x->end < bufferY->start)           //   XXXXXX
 					workspaceX.erase(x);               //           yyyy
@@ -285,7 +305,7 @@ void leungMuntzReverseDuringStrictJoin(const Relation& X, const Relation& Y, con
 			auto y = workspaceY.begin();
 			while (y != workspaceY.end())
 			{
-				consumeIfCovers(*bufferX, *y);
+				consumeIfOK(*bufferX, *y);
 
 				if (y->start < bufferX->start)         //      xxxxx
 					workspaceY.erase(y);               //   YYYYYY....
@@ -360,9 +380,9 @@ void leungMuntzReverseDuringStrictJoin(const Relation& X, const Relation& Y, con
 template <typename Consumer>
 void leungMuntzStartPrecedingStrictJoin(const Relation& X, const Relation& Y, const Consumer& consumer) noexcept
 {
-	auto consumeIfCovers = [&consumer] (const Tuple& x, const Tuple& y)
+	auto consumeIfOK = [&consumer] (const Tuple& x, const Tuple& y)
 	{
-		if (x.start < y.start && x.end >= y.start)
+		if (x.start < y.start && x.end > y.start)
 			consumer(x, y);
 	};
 
@@ -386,7 +406,7 @@ void leungMuntzStartPrecedingStrictJoin(const Relation& X, const Relation& Y, co
 			auto x = workspaceX.begin();
 			while (x != workspaceX.end())
 			{
-				consumeIfCovers(*x, *bufferY);
+				consumeIfOK(*x, *bufferY);
 
 				if (x->end < bufferY->start)           //   XXXXXX
 					workspaceX.erase(x);               //           yyyy
@@ -406,7 +426,7 @@ void leungMuntzStartPrecedingStrictJoin(const Relation& X, const Relation& Y, co
 			auto y = workspaceY.begin();
 			while (y != workspaceY.end())
 			{
-				consumeIfCovers(*bufferX, *y);
+				consumeIfOK(*bufferX, *y);
 
 				if (y->start < bufferX->start)         //      xxxxx
 					workspaceY.erase(y);               //   YYYYYY....

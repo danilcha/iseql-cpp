@@ -12,18 +12,18 @@ using testing::UnorderedElementsAre;
 
 
 static Relation R = {
-	{1,  5, 1},
-	{1, 10, 2},
-	{7, 11, 3},
-	{9, 10, 4},
+	{1,  6, 1},
+	{1, 11, 2},
+	{7, 12, 3},
+	{9, 11, 4},
 };
 
 static Relation S = {
-	{2,  2, 1},
-	{3, 12, 2},
-	{4,  5, 3},
-	{5,  6, 4},
-	{8,  9, 5},
+	{2,  3, 1},
+	{3, 13, 2},
+	{4,  6, 3},
+	{5,  7, 4},
+	{8, 10, 5},
 };
 
 
@@ -334,7 +334,7 @@ TEST_F(Joins, reverseDuringWithDeltaAndEpsilon)
 
 TEST_F(Joins, before)
 {
-	beforeJoin(R, S, 3, consumer);
+	beforeJoin(R, S, 2, consumer);
 
 	EXPECT_THAT(result, UnorderedElementsAre(
 		Pair(1, 5)
@@ -345,7 +345,7 @@ TEST_F(Joins, before)
 
 TEST_F(Joins, after)
 {
-	afterJoin(R, S, 2, consumer);
+	afterJoin(R, S, 1, consumer);
 
 	EXPECT_THAT(result, UnorderedElementsAre(
 		Pair(3, 3),
