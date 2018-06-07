@@ -10,7 +10,67 @@
 
 
 
-inline void mainReverseDuringJoin(Arguments& arguments)
+inline void experimentsReverseDuringStrict(const Relation& R, const Relation& S, Experiments& experiments)
+{
+	experiments.experiment("danila", "index", [&]
+	{
+		Timestamp accum = 0;
+		reverseDuringStrictJoin(R, S, Workload{accum});
+		return accum;
+	});
+
+
+	experiments.experiment("lm0", "sort", [&]
+	{
+		Timestamp accum = 0;
+		leungMuntzReverseDuringStrictJoinOld(R, S, Workload{accum});
+		return accum;
+	});
+
+	experiments.experiment("lm", "sort", [&]
+	{
+		Timestamp accum = 0;
+		leungMuntzReverseDuringStrictJoin(R, S, Workload{accum});
+		return accum;
+	});
+
+	experiments.experiment("lm2", "sort", [&]
+	{
+		Timestamp accum = 0;
+		leungMuntzReverseDuringStrictJoin2(R, S, Workload{accum});
+		return accum;
+	});
+}
+
+
+inline void experimentsStartPreceding(const Relation& R, const Relation& S, Experiments& experiments)
+{
+
+	experiments.experiment("danila", "index", [&]
+	{
+		Timestamp accum = 0;
+		startPrecedingStrictJoin(R, S, Workload{accum});
+		return accum;
+	});
+
+
+	experiments.experiment("lm", "sort", [&]
+	{
+		Timestamp accum = 0;
+		leungMuntzStartPrecedingStrictJoin(R, S, Workload{accum});
+		return accum;
+	});
+
+	experiments.experiment("lm2", "sort", [&]
+	{
+		Timestamp accum = 0;
+		leungMuntzStartPrecedingStrictJoin2(R, S, Workload{accum});
+		return accum;
+	});
+}
+
+
+inline void mainJoins(const std::string& command, Arguments& arguments)
 {
 	Relation R, S;
 
@@ -64,39 +124,19 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 	R.setIndex(indexR);
 	S.setIndex(indexS);
 
-//	for (const auto& item : R)
-//		std::cout << "r: " << item << std::endl;
-//	for (const auto& item : S)
-//		std::cout << "s: " << item << std::endl;
-
-	experiments.experiment("danila", "index", [&]
-	{
-		Timestamp accum = 0;
-		reverseDuringStrictJoin(R, S, Workload{accum});
-		return accum;
-	});
 
 
-	experiments.experiment("lm0", "sort", [&]
-	{
-		Timestamp accum = 0;
-		leungMuntzReverseDuringStrictJoinOld(R, S, Workload{accum});
-		return accum;
-	});
+	if (command == "reverse-during")
+		experimentsReverseDuringStrict(R, S, experiments);
+	else
+	if (command == "start-preceding")
+		experimentsStartPreceding(R, S, experiments);
+	else
+		arguments.error("Invalid command ", command);
 
-	experiments.experiment("lm", "sort", [&]
-	{
-		Timestamp accum = 0;
-		leungMuntzReverseDuringStrictJoin(R, S, Workload{accum});
-		return accum;
-	});
 
-	experiments.experiment("lm2", "sort", [&]
-	{
-		Timestamp accum = 0;
-		leungMuntzReverseDuringStrictJoin2(R, S, Workload{accum});
-		return accum;
-	});
+
+
 
 	#ifdef COUNTERS
 	experiments.addExperimentResult("lm-sel",   (double) lmCounterAfterSelection / lmCounterBeforeSelection);
