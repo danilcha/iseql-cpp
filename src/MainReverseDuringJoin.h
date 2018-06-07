@@ -2,14 +2,11 @@
 
 #include <iostream>
 
-
 #include "util/Arguments.h"
 #include "util/Timer.h"
 #include "MainCommon.h"
 #include "algorithms/Joins.h"
 #include "algorithms/LeungMuntzJoins.h"
-
-//#include <unordered_set>
 
 
 
@@ -34,8 +31,8 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 //		S = RelationGenerator::generateUniform((unsigned) 1e4, 1, (unsigned) 1e2, 1, (unsigned) 1e9, 345);
 //		R = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 1232398);
 //		S = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 345);
-		R = RelationGenerator::generateUniform(12, 1, 3, 10, 30, 5904595);
-		S = RelationGenerator::generateUniform( 3, 1, 3, 10, 30,   58534);
+		R = RelationGenerator::generateUniform(1200000, 1, 3, 10, 3000, 5904595);
+		S = RelationGenerator::generateUniform( 30000, 1, 3, 10, 3000,   58534);
 	}
 
 //	std::unordered_set<Timestamp> ts;
@@ -103,10 +100,12 @@ inline void mainReverseDuringJoin(Arguments& arguments)
 
 	#ifdef COUNTERS
 	experiments.addExperimentResult("lm-sel",   (double) lmCounterAfterSelection / lmCounterBeforeSelection);
-	experiments.addExperimentResult("lm-x-avg", (double) lmCounterActiveXCount / lmCounterActiveXCountTimes);
-	experiments.addExperimentResult("lm-y-avg", (double) lmCounterActiveYCount / lmCounterActiveXCountTimes);
-	experiments.addExperimentResult("lm-x-max", lmCounterActiveXMax);
-	experiments.addExperimentResult("lm-y-max", lmCounterActiveYMax);
+//	experiments.addExperimentResult("lm-x-avg", (double) lmCounterActiveXCount / lmCounterActiveCountTimes);
+//	experiments.addExperimentResult("lm-y-avg", (double) lmCounterActiveYCount / lmCounterActiveCountTimes);
+	experiments.addExperimentResult("lm-avg", (double) (lmCounterActiveXCount + lmCounterActiveYCount) / lmCounterActiveCountTimes);
+//	experiments.addExperimentResult("lm-x-max", lmCounterActiveXMax);
+//	experiments.addExperimentResult("lm-y-max", lmCounterActiveYMax);
+	experiments.addExperimentResult("lm-max", lmCounterActiveMax);
 	experiments.addExperimentResult("my-sel",   (double) myCounterAfterSelection / myCounterBeforeSelection);
 	experiments.addExperimentResult("my-avg", (double) myCounterActiveCount / myCounterActiveCountTimes);
 	experiments.addExperimentResult("my-max", myCounterActiveMax);

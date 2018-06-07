@@ -10,14 +10,14 @@ static unsigned long long lmCounterBeforeSelection   = 0;
 static unsigned long long lmCounterAfterSelection    = 0;
 static unsigned long long lmCounterActiveXCount      = 0;
 static unsigned long long lmCounterActiveYCount      = 0;
-static unsigned long long lmCounterActiveXCountTimes = 0;
-static unsigned long long lmCounterActiveYCountTimes = 0;
+static unsigned long long lmCounterActiveCountTimes  = 0;
 static size_t lmCounterActiveXMax    = 0;
 static size_t lmCounterActiveYMax    = 0;
+static size_t lmCounterActiveMax     = 0;
 #endif
 
 
-#define LM_VERBOSE
+//#define LM_VERBOSE
 
 
 template <typename ShouldReadX,
@@ -33,10 +33,10 @@ void leungMuntzJoin(const Relation& X,
                     const CleanupTestForY& cleanupTestForY,
                     const CheckingConsumer& checkingConsumer) noexcept
 {
-//	auto tauX = 1 + static_cast<Timestamp>(( (X[X.size() - 1].start - X[0].start) / static_cast<double>(X.size() - 1) )) ;
-//	auto tauY = 1 + static_cast<Timestamp>(( (Y[Y.size() - 1].start - Y[0].start) / static_cast<double>(Y.size() - 1) )) ;
-	auto tauX = 1 + static_cast<Timestamp>(round( (X[X.size() - 1].start - X[0].start) / static_cast<double>(X.size() - 1) )) ;
-	auto tauY = 1 + static_cast<Timestamp>(round( (Y[Y.size() - 1].start - Y[0].start) / static_cast<double>(Y.size() - 1) )) ;
+	auto tauX = 1 + static_cast<Timestamp>(( (X[X.size() - 1].start - X[0].start) / static_cast<double>(X.size() - 1) )) ;
+	auto tauY = 1 + static_cast<Timestamp>(( (Y[Y.size() - 1].start - Y[0].start) / static_cast<double>(Y.size() - 1) )) ;
+//	auto tauX = 1 + static_cast<Timestamp>(round( (X[X.size() - 1].start - X[0].start) / static_cast<double>(X.size() - 1) )) ;
+//	auto tauY = 1 + static_cast<Timestamp>(round( (Y[Y.size() - 1].start - Y[0].start) / static_cast<double>(Y.size() - 1) )) ;
 
 	GaplessList<Tuple> workspaceY;
 	GaplessList<Tuple> workspaceX;
@@ -56,32 +56,17 @@ void leungMuntzJoin(const Relation& X,
 
 	for (;;)
 	{
-		unsigned potentialPrune = 0;
+		/* READING AND JOINING */
 
 		if (shouldReadYNextIteration)
 		{
 			#ifdef LM_VERBOSE
 			std::cout << "  Reading Y " << *bufferY << std::endl;
 			#endif
-			auto x = workspaceX.begin();
-			while (x != workspaceX.end())
+
+			for (const auto& x : workspaceX)
 			{
-				checkingConsumer(*x, *bufferY);
-
-				if (cleanupTestForX(*x, bufferY->start))
-				{
-					#ifdef LM_VERBOSE
-					std::cout << "    Erase X " << *x << std::endl;
-					#endif
-					workspaceX.erase(x);
-				}
-				else
-				{
-					if (cleanupTestForX(*x, bufferY->start + tauY))
-						potentialPrune++;
-
-					++x;
-				}
+				checkingConsumer(x, *bufferY);
 			}
 
 			workspaceY.insert(*bufferY);
@@ -93,31 +78,61 @@ void leungMuntzJoin(const Relation& X,
 			std::cout << "  Reading X " << *bufferX << std::endl;
 			#endif
 
-			auto y = workspaceY.begin();
-			while (y != workspaceY.end())
+			for (const auto& y : workspaceY)
 			{
-				checkingConsumer(*bufferX, *y);
-
-				if (cleanupTestForY(*y, bufferX->start))
-				{
-					#ifdef LM_VERBOSE
-					std::cout << "    Erase Y " << *y << std::endl;
-					#endif
-					workspaceY.erase(y);
-				}
-				else
-				{
-					if (cleanupTestForY(*y, bufferX->start + tauX))
-						potentialPrune++;
-
-					++y;
-				}
+				checkingConsumer(*bufferX, y);
 			}
 
 			workspaceX.insert(*bufferX);
 			++bufferX;
 		}
 
+
+		/* CLEANUP */
+
+		unsigned potentialPruneX = 0;
+		unsigned potentialPruneY = 0;
+
+		auto x = workspaceX.begin();
+		while (x != workspaceX.end())
+		{
+			if (cleanupTestForX(*x, bufferY->start))
+			{
+				#ifdef LM_VERBOSE
+				std::cout << "    Erase X " << *x << std::endl;
+				#endif
+				workspaceX.erase(x);
+			}
+			else
+			{
+				if (cleanupTestForX(*x, bufferY->start + tauY))
+					potentialPruneX++;
+
+				++x;
+			}
+		}
+
+		auto y = workspaceY.begin();
+		while (y != workspaceY.end())
+		{
+			if (cleanupTestForY(*y, bufferX->start))
+			{
+				#ifdef LM_VERBOSE
+				std::cout << "    Erase Y " << *y << std::endl;
+				#endif
+				workspaceY.erase(y);
+			}
+			else
+			{
+				if (cleanupTestForY(*y, bufferX->start + tauX))
+					potentialPruneY++;
+
+				++y;
+			}
+		}
+
+
+		/* DECIDING */
 
 		if (bufferX == X.end())
 		{
@@ -150,29 +165,6 @@ void leungMuntzJoin(const Relation& X,
 		}
 		else
 		{
-			unsigned potentialPruneX = 0;
-			unsigned potentialPruneY = 0;
-
-			if (shouldReadYNextIteration)
-			{
-//				a ++;
-//				std::cout << 1 << std::endl;
-				potentialPruneX = potentialPrune;
-				for (const auto& y : workspaceY)
-					if (cleanupTestForY(y, bufferX->start + tauX))
-						potentialPruneY++;
-			}
-			else
-			{
-//				std::cout << 2 << std::endl;
-//				b++;
-
-				potentialPruneY = potentialPrune;
-				for (const auto& x : workspaceX)
-					if (cleanupTestForX(x, bufferY->start + tauY))
-						potentialPruneX++;
-			}
-
 			#ifdef LM_VERBOSE
 			std::cout << "POTENTIAL PRUNE X " << potentialPruneX << " and Y " << potentialPruneY << std::endl;
 			#endif
@@ -186,10 +178,10 @@ void leungMuntzJoin(const Relation& X,
 		#ifdef COUNTERS
 		lmCounterActiveXCount += workspaceX.size();
 		lmCounterActiveYCount += workspaceY.size();
-		lmCounterActiveXCountTimes++;
-		lmCounterActiveYCountTimes++;
+		lmCounterActiveCountTimes++;
 		lmCounterActiveXMax = std::max(lmCounterActiveXMax, workspaceX.size());
 		lmCounterActiveYMax = std::max(lmCounterActiveYMax, workspaceY.size());
+		lmCounterActiveMax = std::max(lmCounterActiveMax, workspaceX.size() + workspaceY.size());
 		#endif
 	}
 }
