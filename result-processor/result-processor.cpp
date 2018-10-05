@@ -27,7 +27,7 @@ auto get_header_and_result_lines(const std::string& filename)
 		std::cout << std::endl;
 
 	std::string line;
-	while (std::getline(in, line) && line != "-----BEGIN RESULTS-----") { /* no nothing */ }
+	while (std::getline(in, line) && line != "-----BEGIN RESULTS-----") { /* do nothing */ }
 
 	std::string header;
 	std::getline(in, header);
@@ -75,7 +75,7 @@ void generate_data_file(const std::string& output_file_name, const std::vector<T
 		if (header != global_header)
 		{
 			std::cout << "Invalid header\n"
-					<< "Expected: " << global_header << "\n"
+					<< "Expected: " << global_header << '\n'
 					<< "Received: " << header << std::endl;
 		}
 
@@ -153,13 +153,6 @@ void main__()
 		{"wi",     "rw-start-preceding-wi.txt"    },
 		{"fi",     "rw-start-preceding-bi.txt"    },
 	});
-
-
-
-
-
-
-
 }
 
 

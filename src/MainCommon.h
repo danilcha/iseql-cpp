@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "util/Arguments.h"
-#include "model/Relation.h"
+#include "model/RelationGenerator.h"
 
 inline Relation getRelation(Arguments& arguments, RelationGenerator::SeedType seed)
 {

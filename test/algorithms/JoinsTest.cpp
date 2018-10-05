@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "algorithms/Joins.h"
-#include "algorithms/LeungMuntzJoins.h"
+#include "algorithms/LMJoins.h"
 
 
 using testing::Test;
@@ -209,6 +209,18 @@ TEST_F(Joins, leftOverlap)
 	EXPECT_THAT(result, UnorderedElementsAre(
 		Pair(1, 2),
 		Pair(1, 3),
+		Pair(1, 4),
+		Pair(2, 2)
+	));
+}
+
+
+TEST_F(Joins, leftOverlapStrict)
+{
+	leftOverlapStrictJoin(R, S, consumer);
+
+	EXPECT_THAT(result, UnorderedElementsAre(
+		Pair(1, 2),
 		Pair(1, 4),
 		Pair(2, 2)
 	));

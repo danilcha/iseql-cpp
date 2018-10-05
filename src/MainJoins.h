@@ -3,10 +3,12 @@
 #include <iostream>
 
 #include "util/Arguments.h"
+#include "util/Experiments.h"
 #include "util/Timer.h"
+#include "model/RelationGenerator.h"
 #include "MainCommon.h"
 #include "algorithms/Joins.h"
-#include "algorithms/LeungMuntzJoins.h"
+#include "algorithms/LMJoins.h"
 
 
 
@@ -20,24 +22,10 @@ inline void experimentsReverseDuringStrict(const Relation& R, const Relation& S,
 	});
 
 
-	experiments.experiment("lm0", "sort", [&]
-	{
-		Timestamp accum = 0;
-		leungMuntzReverseDuringStrictJoinOld(R, S, Workload{accum});
-		return accum;
-	});
-
 	experiments.experiment("lm", "sort", [&]
 	{
 		Timestamp accum = 0;
 		leungMuntzReverseDuringStrictJoin(R, S, Workload{accum});
-		return accum;
-	});
-
-	experiments.experiment("lm2", "sort", [&]
-	{
-		Timestamp accum = 0;
-		leungMuntzReverseDuringStrictJoin2(R, S, Workload{accum});
 		return accum;
 	});
 }
@@ -61,12 +49,27 @@ inline void experimentsStartPreceding(const Relation& R, const Relation& S, Expe
 		return accum;
 	});
 
-	experiments.experiment("lm2", "sort", [&]
+}
+
+
+inline void experimentsLeftOverlapStrict(const Relation& R, const Relation& S, Experiments& experiments)
+{
+
+	experiments.experiment("danila", "index", [&]
 	{
 		Timestamp accum = 0;
-		leungMuntzStartPrecedingStrictJoin2(R, S, Workload{accum});
+		leftOverlapStrictJoin(R, S, Workload{accum});
 		return accum;
 	});
+
+
+	experiments.experiment("lm", "sort", [&]
+	{
+		Timestamp accum = 0;
+		leungMuntzLeftOverlapStrictJoin(R, S, Workload{accum});
+		return accum;
+	});
+
 }
 
 
@@ -93,6 +96,8 @@ inline void mainJoins(const std::string& command, Arguments& arguments)
 //		S = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 345);
 		R = RelationGenerator::generateUniform(1200000, 1, 3, 10, 3000, 5904595);
 		S = RelationGenerator::generateUniform( 30000, 1, 3, 10, 3000,   58534);
+//		R = RelationGenerator::generateUniform(12, 1, 3, 10, 30, 5904595);
+//		S = RelationGenerator::generateUniform( 3, 1, 3, 10, 30,   58534);
 	}
 
 //	std::unordered_set<Timestamp> ts;
@@ -132,6 +137,9 @@ inline void mainJoins(const std::string& command, Arguments& arguments)
 	if (command == "start-preceding")
 		experimentsStartPreceding(R, S, experiments);
 	else
+	if (command == "left-overlap")
+		experimentsLeftOverlapStrict(R, S, experiments);
+	else
 		arguments.error("Invalid command ", command);
 
 
@@ -139,15 +147,15 @@ inline void mainJoins(const std::string& command, Arguments& arguments)
 
 
 	#ifdef COUNTERS
-	experiments.addExperimentResult("lm-sel",   (double) lmCounterAfterSelection / lmCounterBeforeSelection);
-//	experiments.addExperimentResult("lm-x-avg", (double) lmCounterActiveXCount / lmCounterActiveCountTimes);
-//	experiments.addExperimentResult("lm-y-avg", (double) lmCounterActiveYCount / lmCounterActiveCountTimes);
-	experiments.addExperimentResult("lm-avg", (double) (lmCounterActiveXCount + lmCounterActiveYCount) / lmCounterActiveCountTimes);
-//	experiments.addExperimentResult("lm-x-max", lmCounterActiveXMax);
-//	experiments.addExperimentResult("lm-y-max", lmCounterActiveYMax);
-	experiments.addExperimentResult("lm-max", lmCounterActiveMax);
-	experiments.addExperimentResult("my-sel",   (double) myCounterAfterSelection / myCounterBeforeSelection);
-	experiments.addExperimentResult("my-avg", (double) myCounterActiveCount / myCounterActiveCountTimes);
-	experiments.addExperimentResult("my-max", myCounterActiveMax);
+	experiments.addExperimentResult("lm-sel",   (double) lmCounterAfterSelection / (double) lmCounterBeforeSelection);
+//	experiments.addExperimentResult("lm-x-avg", (double) lmCounterActiveCountX / lmCounterActiveCountTimes);
+//	experiments.addExperimentResult("lm-y-avg", (double) lmCounterActiveCountY / lmCounterActiveCountTimes);
+	experiments.addExperimentResult("lm-avg", (double) (lmCounterActiveCountX + lmCounterActiveCountY) / (double) lmCounterActiveCountTimes);
+//	experiments.addExperimentResult("lm-x-max", lmCounterActiveMaxX);
+//	experiments.addExperimentResult("lm-y-max", lmCounterActiveMaxY);
+	experiments.addExperimentResult("lm-max", (double) lmCounterActiveMax);
+	experiments.addExperimentResult("my-sel", myCounterBeforeSelection ? (double) myCounterAfterSelection / (double) myCounterBeforeSelection : 1);
+	experiments.addExperimentResult("my-avg", (double) myCounterActiveCount / (double) myCounterActiveCountTimes);
+	experiments.addExperimentResult("my-max", (double) myCounterActiveMax);
 	#endif
 }

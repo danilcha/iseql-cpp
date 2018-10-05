@@ -9,20 +9,20 @@ EXE="$BUILD_DIR/src/iseql"
 
 if [ "$1" == "make" ]
 then
-	(
-	mkdir -p "$BUILD_DIR"
-	cd "$BUILD_DIR"
-	cmake -DCMAKE_BUILD_TYPE=Release ..
-	make iseql
-	)
-	exit
+    (
+        mkdir -p "$BUILD_DIR"
+        cd "$BUILD_DIR"
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make iseql
+    )
+    exit
 fi
 
 
 if [ ! "$1" ]
 then
-	echo "You have to specify experiment name"
-	exit 1
+    echo "You have to specify experiment name"
+    exit 1
 fi
 
 RESULTS_DIR="$SCRIPT_DIR/results/$1"
@@ -34,54 +34,54 @@ DISABLED_EXPERIMENTS=''
 
 resetDisabledExperiments()
 {
-	DISABLED_EXPERIMENTS='-'
+    DISABLED_EXPERIMENTS='-'
 }
 
 
 disableLongExperiments()
 {
-	local DATA=`cat "$1" | grep -B 2 -- '-----END RESULTS-----' | head -n 2`
-	local experiments=(`echo "$DATA" | head -n 1`)
-	local values=(`echo "$DATA" | tail -n 1`)
+    local DATA=`cat "$1" | grep -B 2 -- '-----END RESULTS-----' | head -n 2`
+    local experiments=(`echo "$DATA" | head -n 1`)
+    local values=(`echo "$DATA" | tail -n 1`)
 
-	resetDisabledExperiments
+    resetDisabledExperiments
 
-	for i in `seq 0 $((${#experiments[*]} - 1))`
-	do
-		local experiment=${experiments[$i]}
-		local time=${values[$i]}
-		if [[ "$time" == 'nan' ]] || (( $(bc <<< "$time > 700") ))
-		then
-			if [ "$DISABLED_EXPERIMENTS" == '-' ]
-			then
-				DISABLED_EXPERIMENTS="$experiment"
-			else
-				DISABLED_EXPERIMENTS="$DISABLED_EXPERIMENTS,$experiment"
-			fi
-		fi
-	done
+    for i in `seq 0 $((${#experiments[*]} - 1))`
+    do
+        local experiment=${experiments[$i]}
+        local time=${values[$i]}
+        if [[ "$time" == 'nan' ]] || (( $(bc <<< "$time > 700") ))
+        then
+            if [ "$DISABLED_EXPERIMENTS" == '-' ]
+            then
+                DISABLED_EXPERIMENTS="$experiment"
+            else
+                DISABLED_EXPERIMENTS="$DISABLED_EXPERIMENTS,$experiment"
+            fi
+        fi
+    done
 }
 
 
 
 experiment()
 {
-	NAME="$1"
-	RESULT_FILE="$RESULTS_DIR/$NAME.txt"
-	if [ ! -f "$RESULT_FILE" ]
-	then
+    NAME="$1"
+    RESULT_FILE="$RESULTS_DIR/$NAME.txt"
+    if [ ! -f "$RESULT_FILE" ]
+    then
 
-		#echo "Skipping because $RESULT_FILE exists"
+        #echo "Skipping because $RESULT_FILE exists"
 #	else
-		echo '---------------------------------------------------------------------------------------'
-		echo experiment "${@}"
-		echo '---------------------------------------------------------------------------------------'
+        echo '---------------------------------------------------------------------------------------'
+        echo experiment "${@}"
+        echo '---------------------------------------------------------------------------------------'
 
-		"$EXE" "${@:2}" | tee "$RESULTS_DIR/current.txt"
-		mv "$RESULTS_DIR/current.txt" "$RESULT_FILE"
-	fi
+        "$EXE" "${@:2}" | tee "$RESULTS_DIR/current.txt"
+        mv "$RESULTS_DIR/current.txt" "$RESULT_FILE"
+    fi
 
-	disableLongExperiments "$RESULT_FILE"
+    disableLongExperiments "$RESULT_FILE"
 }
 
 
@@ -104,32 +104,32 @@ resetDisabledExperiments
 for c in 1e3 3.16e3 1e4 3.16e4 1e5 3.16e5 1e6 3.16e6 1e7 3.16e7 1e8 # 3.16e8 1e9
 do
 #	for l in 1e1 1e2 1e3 1e4 1e5 1e6
-	for l in 1e2 1e4 1e6
-	do
-		if [[ "$c" == "3.16e6" && ("$l" == "1e6") ]]
-		then
-			continue
-		fi
-		if [[ "$c" == "1e7"    && ("$l" == "1e5" || "$l" == "1e6") ]]
-		then
-			continue
-		fi
-		if [[ "$c" == "3.16e7" && ("$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
-		then
-			continue
-		fi
-		if [[ "$c" == "1e8"    && ("$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
-		then
-			continue
-		fi
-		if [[ "$c" == "3.16e8" && ("$l" == "1e2" || "$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
-		then
-			continue
-		fi
+    for l in 1e2 1e4 1e6
+    do
+        if [[ "$c" == "3.16e6" && ("$l" == "1e6") ]]
+        then
+            continue
+        fi
+        if [[ "$c" == "1e7"    && ("$l" == "1e5" || "$l" == "1e6") ]]
+        then
+            continue
+        fi
+        if [[ "$c" == "3.16e7" && ("$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+        then
+            continue
+        fi
+        if [[ "$c" == "1e8"    && ("$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+        then
+            continue
+        fi
+        if [[ "$c" == "3.16e8" && ("$l" == "1e2" || "$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+        then
+            continue
+        fi
 
-		experiment  "reverse-during-$c-$l"  reverse-during --exp $c $l --exp $c $l
-		experiment  "start-preceding-$c-$l" start-preceding --exp $c $l --exp $c $l
-	done
+        experiment  "reverse-during-$c-$l"  reverse-during --exp $c $l --exp $c $l
+        experiment  "start-preceding-$c-$l" start-preceding --exp $c $l --exp $c $l
+    done
 done
 
 

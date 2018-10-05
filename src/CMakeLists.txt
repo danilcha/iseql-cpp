@@ -10,12 +10,15 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 
 
 
+add_definitions(-DCOUNTERS)
+
 
 add_executable(iseql
 
 		Main.cpp
 
 		model/Interval.h
+		model/RelationGenerator.h
 		model/Tuple.h
 		model/Relation.h
 		model/Endpoint.h
@@ -27,7 +30,8 @@ add_executable(iseql
 		algorithms/Joins2.h
 		algorithms/Joins.h
 		algorithms/JoinsInlined.h
-		algorithms/LeungMuntzJoins.h
+		algorithms/LMJoin0.h
+		algorithms/LMJoins.h
 
 		util/Arguments.h
 		util/Experiments.h
@@ -37,10 +41,10 @@ add_executable(iseql
 		MainBefore.h
 		MainCommon.h
 		MainJoins.h
-		MainStartPrecedingJoin.h
 
 		containers/GaplessHashMap.h
 		containers/GaplessList.h
 		containers/Util.h
 
-		model/RelationGenerator.h)
+
+		)

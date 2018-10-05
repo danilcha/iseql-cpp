@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <algorithm>
 #include "model/Tuple.h"
 
 

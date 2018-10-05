@@ -88,6 +88,19 @@ void leftOverlapJoin(const Relation& R, const Relation& S, const Consumer& consu
 
 
 
+
+template <typename Consumer>
+void leftOverlapStrictJoin(const Relation& R, const Relation& S, const Consumer& consumer) noexcept
+{
+	startPrecedingStrictJoin(R, S, [&consumer] (const Tuple& r, const Tuple& s)
+	{
+		if (r.end < s.end)
+			consumer(r, s);
+	});
+}
+
+
+
 template <typename Consumer>
 void leftOverlapJoin(const Relation& R, const Relation& S, Timestamp delta, Timestamp epsilon, const Consumer& consumer) noexcept
 {

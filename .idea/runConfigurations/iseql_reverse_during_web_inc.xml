@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="iseql reverse-during web-inc" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PROGRAM_PARAMS="reverse-during --file $PROJECT_DIR$/../../data/webkit-norm.txt --file $PROJECT_DIR$/../../data/incumbent/incumbent-norm.txt" PASS_PARENT_ENVS_2="true" PROJECT_NAME="iseql-cpp" TARGET_NAME="iseql" CONFIG_NAME="Release GCC" RUN_TARGET_PROJECT_NAME="iseql-cpp" RUN_TARGET_NAME="iseql">
+  <configuration default="false" name="iseql reverse-during web-inc" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="reverse-during --file $PROJECT_DIR$/../../data/webkit-norm.txt --file $PROJECT_DIR$/../../data/incumbent/incumbent-norm.txt" PASS_PARENT_ENVS_2="true" PROJECT_NAME="iseql-cpp" TARGET_NAME="iseql" CONFIG_NAME="Release GCC" RUN_TARGET_PROJECT_NAME="iseql-cpp" RUN_TARGET_NAME="iseql">
     <method />
   </configuration>
 </component>

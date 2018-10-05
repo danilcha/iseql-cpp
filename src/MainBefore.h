@@ -4,6 +4,7 @@
 #include <model/RelationGenerator.h>
 #include "util/Experiments.h"
 #include "algorithms/JoinsInlined.h"
+#include "algorithms/Joins.h"
 
 
 
