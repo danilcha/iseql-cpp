@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <model/RelationGenerator.h>
+#include "algorithms/IEJoin.h"
 #include "algorithms/Joins.h"
 #include "algorithms/LMJoins.h"
 #include "util/Timer.h"
@@ -25,7 +26,7 @@ static auto consumer = [] (const Tuple& r, const Tuple& s)
 
 
 
-class JoinsLM : public Test
+class JoinsComparison : public Test
 {
 protected:
 	#pragma clang diagnostic push
@@ -54,7 +55,7 @@ protected:
 
 
 
-TEST_F(JoinsLM, reverseDuringStrict)
+TEST_F(JoinsComparison, reverseDuringStrict)
 {
 	Timer t;
 
@@ -93,7 +94,7 @@ TEST_F(JoinsLM, reverseDuringStrict)
 
 
 
-TEST_F(JoinsLM, startPrecedingStrict)
+TEST_F(JoinsComparison, startPrecedingStrict)
 {
 	Timer t;
 
@@ -110,14 +111,22 @@ TEST_F(JoinsLM, startPrecedingStrict)
 	t.stopAndPrint();
 	std::cout << " " << result << "\n";
 
+	t.start();
+	result = 0;
+	ieJoinStartPrecedingStrictJoin(R, S, consumer);
+	auto ieResult = result;
+	t.stopAndPrint();
+	std::cout << " " << result << "\n";
+
 	EXPECT_EQ(normalResult, lmResult);
+	EXPECT_EQ(normalResult, ieResult);
 }
 
 
 
 
 
-TEST_F(JoinsLM, leftOverlapStrict)
+TEST_F(JoinsComparison, leftOverlapStrict)
 {
 	Timer t;
 

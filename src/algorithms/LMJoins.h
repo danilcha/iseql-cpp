@@ -10,6 +10,10 @@
 //#define leungMuntzJoin leungMuntzJoin3
 
 
+#ifdef COUNTERS
+static unsigned long long lmComparisonCount = 0;
+#endif
+
 
 template <typename Consumer>
 void leungMuntzStartPrecedingBaseJoin(const Relation& X, const Relation& Y, Consumer&& consumer) noexcept
@@ -17,8 +21,22 @@ void leungMuntzStartPrecedingBaseJoin(const Relation& X, const Relation& Y, Cons
 	leungMuntzJoin(X, Y,
 		[] (const Tuple&        , const Tuple&        ) { return false;                         },
 		[] (const Tuple& bufferX, const Tuple& bufferY) { return bufferY.start < bufferX.start; },
-		[] (const Tuple& x, Timestamp startY) { return x.end   < startY; },
-		[] (const Tuple& y, Timestamp startX) { return y.start < startX; },
+		[] (const Tuple& x, Timestamp startY)
+		{
+			#ifdef COUNTERS
+			lmComparisonCount++;
+			#endif
+
+			return x.end   < startY;
+		},
+		[] (const Tuple& y, Timestamp startX)
+		{
+			#ifdef COUNTERS
+			lmComparisonCount++;
+			#endif
+
+			return y.start < startX;
+		},
 		consumer
 	);
 }

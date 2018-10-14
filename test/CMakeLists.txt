@@ -17,9 +17,11 @@ endif(COMMAND cmake_policy)
 enable_testing()
 add_executable(tests
 	model/IntervalTest.cpp
+	algorithms/IEJoinTest.cpp
+	algorithms/JoinsTest.cpp
 	algorithms/JoinsTest.cpp
 	algorithms/JoinsInlinedTest.cpp
-	algorithms/JoinsLMTest.cpp
+		algorithms/JoinsComparison.cpp
 	containers/GaplessHashMapTest.cpp
 		../src/model/RelationGenerator.h)
 target_link_libraries(tests gmock_main)

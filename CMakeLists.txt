@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.4)
 
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
+
 project(iseql-cpp CXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
@@ -16,6 +20,20 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-old-style-cast")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-float-equal")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-padded")
+endif()
+
+
+
+OPTION(COUNTERS "Enable algorithm performance counters" OFF)
+if (COUNTERS)
+	message("## Enabling counters ##")
+	add_definitions(-DCOUNTERS)
+endif()
+
+OPTION(EBI "Enable EBI algorithm instead of LEBI" OFF)
+if (EBI)
+	message("## Enabling EBI ##")
+	add_definitions(-DEBI)
 endif()
 
 

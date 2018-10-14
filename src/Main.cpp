@@ -11,12 +11,16 @@ int main(int /*argc*/, const char* argv[])
 	std::cout << "ISEQL    ";
 	std::cout << sizeof(size_t) * 8 << "-bit    ";
 	std::cout << "Compiled on " __DATE__ " " __TIME__ "    ";
-	std::cout << "Tuple size " << sizeof(Tuple) << " bytes    ";
+	std::cout << "Tuple size " << sizeof(Tuple) << " bytes";
 	#ifdef NDEBUG
-		std::cout << "Release" << std::endl;
+		std::cout << "    Release";
 	#else
-		std::cout << "Debug" << std::endl;
+		std::cout << "    Debug";
 	#endif
+	#ifdef COUNTERS
+		std::cout << "    COUNTERS";
+	#endif
+	std::cout << std::endl;
 
 	Arguments arguments{argv};
 

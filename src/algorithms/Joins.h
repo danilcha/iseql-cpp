@@ -94,8 +94,18 @@ void leftOverlapStrictJoin(const Relation& R, const Relation& S, const Consumer&
 {
 	startPrecedingStrictJoin(R, S, [&consumer] (const Tuple& r, const Tuple& s)
 	{
+		#ifdef COUNTERS
+		myCounterBeforeSelection++;
+		#endif
+
 		if (r.end < s.end)
+		{
+			#ifdef COUNTERS
+			myCounterAfterSelection++;
+			#endif
+
 			consumer(r, s);
+		}
 	});
 }
 

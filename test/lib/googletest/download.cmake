@@ -8,7 +8,8 @@ include(ExternalProject)
 
 ExternalProject_Add(googletest
 		GIT_REPOSITORY https://github.com/google/googletest.git
-		GIT_TAG master
+		GIT_TAG release-1.8.0
+#		GIT_CONFIG advice.detachedHead=false
 		SOURCE_DIR "${CMAKE_BINARY_DIR}/googletest-src"
 		BINARY_DIR "${CMAKE_BINARY_DIR}/googletest-build"
 		CONFIGURE_COMMAND ""

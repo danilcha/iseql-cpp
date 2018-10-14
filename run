@@ -1,27 +1,14 @@
 #!/bin/bash
 
-SCRIPT_DIR=`dirname "$0"`
-
-DATA_DIR=~/data
-BUILD_DIR="$SCRIPT_DIR/build"
-EXE="$BUILD_DIR/src/iseql"
+set -e
 
 
-if [ "$1" == "make" ]
-then
-    (
-        mkdir -p "$BUILD_DIR"
-        cd "$BUILD_DIR"
-        cmake -DCMAKE_BUILD_TYPE=Release ..
-        make iseql
-    )
-    exit
-fi
+source ./common.inc.sh
 
 
 if [ ! "$1" ]
 then
-    echo "You have to specify experiment name"
+    echo "ARGUMENTS: <experiment suite name>"
     exit 1
 fi
 
@@ -85,62 +72,73 @@ experiment()
 }
 
 
+EXPERIMENTS_PREFIX=""
+
+experiments()
+{
+    experiment "$EXPERIMENTS_PREFIX$1"-reverse-during  reverse-during  "${@:2}"
+    experiment "$EXPERIMENTS_PREFIX$1"-start-preceding start-preceding "${@:2}"
+    experiment "$EXPERIMENTS_PREFIX$1"-left-overlap    left-overlap    "${@:2}"
+}
 
 
-
-
-experiment rw-flight reverse-during --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"                    --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"
-experiment rw-inc    reverse-during --file "$DATA_DIR/incumbent-norm.txt"                        --file "$DATA_DIR/incumbent-norm.txt"
-experiment rw-wi     reverse-during --file "$DATA_DIR/webkit-norm.txt"                           --file "$DATA_DIR/incumbent-norm.txt"
-experiment rw-bi     reverse-during --file "$DATA_DIR/big_table-norm.txt"                           --file "$DATA_DIR/incumbent-norm.txt"
-
-experiment rw-start-preceding-flight start-preceding --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"                    --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"
-experiment rw-start-preceding-inc    start-preceding --file "$DATA_DIR/incumbent-norm.txt"                        --file "$DATA_DIR/incumbent-norm.txt"
-experiment rw-start-preceding-wi     start-preceding --file "$DATA_DIR/webkit-norm.txt"                           --file "$DATA_DIR/incumbent-norm.txt"
-experiment rw-start-preceding-bi     start-preceding --file "$DATA_DIR/big_table-norm.txt"                           --file "$DATA_DIR/incumbent-norm.txt"
-
-
-resetDisabledExperiments
-for c in 1e3 3.16e3 1e4 3.16e4 1e5 3.16e5 1e6 3.16e6 1e7 3.16e7 1e8 # 3.16e8 1e9
-do
-#	for l in 1e1 1e2 1e3 1e4 1e5 1e6
-    for l in 1e2 1e4 1e6
+exp-suite()
+{
+    resetDisabledExperiments
+    for c in 1e3 3.16e3 1e4 3.16e4 1e5 3.16e5 1e6 3.16e6 1e7 3.16e7 1e8 # 3.16e8 1e9
     do
-        if [[ "$c" == "3.16e6" && ("$l" == "1e6") ]]
-        then
-            continue
-        fi
-        if [[ "$c" == "1e7"    && ("$l" == "1e5" || "$l" == "1e6") ]]
-        then
-            continue
-        fi
-        if [[ "$c" == "3.16e7" && ("$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
-        then
-            continue
-        fi
-        if [[ "$c" == "1e8"    && ("$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
-        then
-            continue
-        fi
-        if [[ "$c" == "3.16e8" && ("$l" == "1e2" || "$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
-        then
-            continue
-        fi
+    #	for l in 1e1 1e2 1e3 1e4 1e5 1e6
+        for l in 1e2 1e4 1e6
+        do
+            if [[ "$c" == "3.16e6" && ("$l" == "1e6") ]]
+            then
+                continue
+            fi
+            if [[ "$c" == "1e7"    && ("$l" == "1e5" || "$l" == "1e6") ]]
+            then
+                continue
+            fi
+            if [[ "$c" == "3.16e7" && ("$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+            then
+                continue
+            fi
+            if [[ "$c" == "1e8"    && ("$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+            then
+                continue
+            fi
+            if [[ "$c" == "3.16e8" && ("$l" == "1e2" || "$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+            then
+                continue
+            fi
 
-        experiment  "reverse-during-$c-$l"  reverse-during --exp $c $l --exp $c $l
-        experiment  "start-preceding-$c-$l" start-preceding --exp $c $l --exp $c $l
+            experiments "exp-$c-$l" --exp $c $l --exp $c $l
+        done
     done
-done
+}
+
+rw-suite()
+{
+    experiments rw-flight  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"
+    experiments rw-inc     --file "$DATA_DIR/incumbent-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"
+    experiments rw-wi      --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/incumbent-norm.txt"
+    experiments rw-bi      --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"
+    experiments rw-web     --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/webkit-norm.txt"
+    experiments rw-big     --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/big_table-norm.txt"
+    experiments rw-basf    --basf "$DATA_DIR/basf_nono.import"        --basf "$DATA_DIR/basf_nono.import"
+}
 
 
-experiment rw-web    reverse-during --file "$DATA_DIR/webkit-norm.txt"                           --file "$DATA_DIR/webkit-norm.txt"
-experiment rw-big    reverse-during --file "$DATA_DIR/big_table-norm.txt"                        --file "$DATA_DIR/big_table-norm.txt"
-experiment rw-dasa   reverse-during --dasa "$DATA_DIR/looks_like_one_sensor_data_from_dasa.txt"  --dasa "$DATA_DIR/looks_like_one_sensor_data_from_dasa.txt"
+exp-suite
 
-experiment rw-start-preceding-web    start-preceding --file "$DATA_DIR/webkit-norm.txt"                           --file "$DATA_DIR/webkit-norm.txt"
-experiment rw-start-preceding-big    start-preceding --file "$DATA_DIR/big_table-norm.txt"                        --file "$DATA_DIR/big_table-norm.txt"
-experiment rw-start-preceding-dasa   start-preceding --dasa "$DATA_DIR/looks_like_one_sensor_data_from_dasa.txt"  --dasa "$DATA_DIR/looks_like_one_sensor_data_from_dasa.txt"
+rw-suite
 
+switchToCounters
+EXPERIMENTS_PREFIX="counters-"
 
-experiment rw-basf                   reverse-during --basf "$DATA_DIR/basf_nono.import"                          --basf "$DATA_DIR/basf_nono.import"
-experiment rw-start-preceding-basf   start-preceding --basf "$DATA_DIR/basf_nono.import"                          --basf "$DATA_DIR/basf_nono.import"
+rw-suite
+
+switchToEBI
+EXPERIMENTS_PREFIX="ebi-"
+
+rw-suite
+

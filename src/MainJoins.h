@@ -12,64 +12,24 @@
 
 
 
-inline void experimentsReverseDuringStrict(const Relation& R, const Relation& S, Experiments& experiments)
+typedef void join_algorithm_t(const Relation&, const Relation&, const Workload&);
+
+inline void compareDanilaAndLM(const Relation& R, const Relation& S, Experiments& experiments,
+                               join_algorithm_t* danila, join_algorithm_t* lm)
 {
 	experiments.experiment("danila", "index", [&]
 	{
 		Timestamp accum = 0;
-		reverseDuringStrictJoin(R, S, Workload{accum});
+		danila(R, S, Workload{accum});
 		return accum;
 	});
-
 
 	experiments.experiment("lm", "sort", [&]
 	{
 		Timestamp accum = 0;
-		leungMuntzReverseDuringStrictJoin(R, S, Workload{accum});
+		lm(R, S, Workload{accum});
 		return accum;
 	});
-}
-
-
-inline void experimentsStartPreceding(const Relation& R, const Relation& S, Experiments& experiments)
-{
-
-	experiments.experiment("danila", "index", [&]
-	{
-		Timestamp accum = 0;
-		startPrecedingStrictJoin(R, S, Workload{accum});
-		return accum;
-	});
-
-
-	experiments.experiment("lm", "sort", [&]
-	{
-		Timestamp accum = 0;
-		leungMuntzStartPrecedingStrictJoin(R, S, Workload{accum});
-		return accum;
-	});
-
-}
-
-
-inline void experimentsLeftOverlapStrict(const Relation& R, const Relation& S, Experiments& experiments)
-{
-
-	experiments.experiment("danila", "index", [&]
-	{
-		Timestamp accum = 0;
-		leftOverlapStrictJoin(R, S, Workload{accum});
-		return accum;
-	});
-
-
-	experiments.experiment("lm", "sort", [&]
-	{
-		Timestamp accum = 0;
-		leungMuntzLeftOverlapStrictJoin(R, S, Workload{accum});
-		return accum;
-	});
-
 }
 
 
@@ -132,13 +92,19 @@ inline void mainJoins(const std::string& command, Arguments& arguments)
 
 
 	if (command == "reverse-during")
-		experimentsReverseDuringStrict(R, S, experiments);
+	{
+		compareDanilaAndLM(R, S, experiments, &reverseDuringStrictJoin,  &leungMuntzReverseDuringStrictJoin);
+	}
 	else
 	if (command == "start-preceding")
-		experimentsStartPreceding(R, S, experiments);
+	{
+		compareDanilaAndLM(R, S, experiments, &startPrecedingStrictJoin, &leungMuntzStartPrecedingStrictJoin);
+	}
 	else
 	if (command == "left-overlap")
-		experimentsLeftOverlapStrict(R, S, experiments);
+	{
+		compareDanilaAndLM(R, S, experiments, &leftOverlapStrictJoin,    &leungMuntzLeftOverlapStrictJoin);
+	}
 	else
 		arguments.error("Invalid command ", command);
 
@@ -157,5 +123,7 @@ inline void mainJoins(const std::string& command, Arguments& arguments)
 	experiments.addExperimentResult("my-sel", myCounterBeforeSelection ? (double) myCounterAfterSelection / (double) myCounterBeforeSelection : 1);
 	experiments.addExperimentResult("my-avg", (double) myCounterActiveCount / (double) myCounterActiveCountTimes);
 	experiments.addExperimentResult("my-max", (double) myCounterActiveMax);
+	experiments.addExperimentResult("lm-comp", (double) (lmComparisonCount + lmCounterBeforeSelection * 2));
+	experiments.addExperimentResult("my-comp", (double) myCounterBeforeSelection);
 	#endif
 }

@@ -10,9 +10,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 
 
 
-add_definitions(-DCOUNTERS)
-
-
 add_executable(iseql
 
 		Main.cpp
@@ -24,6 +21,7 @@ add_executable(iseql
 		model/Endpoint.h
 		model/Index.h
 
+		algorithms/IEJoin.h
 		algorithms/Iterators.h
 		algorithms/Joins0.h
 		algorithms/Joins1.h

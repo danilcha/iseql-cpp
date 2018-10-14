@@ -1,6 +1,7 @@
 #include <set>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include "algorithms/IEJoin.h"
 #include "algorithms/Joins.h"
 #include "algorithms/LMJoins.h"
 
@@ -86,6 +87,24 @@ TEST_F(Joins, startPreceding)
 TEST_F(Joins, startPrecedingStrict)
 {
 	startPrecedingStrictJoin(R, S, consumer);
+
+	EXPECT_THAT(result, UnorderedElementsAre(
+		Pair(1, 1),
+		Pair(1, 2),
+		Pair(1, 3),
+		Pair(1, 4),
+		Pair(2, 1),
+		Pair(2, 2),
+		Pair(2, 3),
+		Pair(2, 4),
+		Pair(2, 5),
+		Pair(3, 5)
+	));
+}
+
+TEST_F(Joins, startPrecedingStrictIE)
+{
+	ieJoinStartPrecedingStrictJoin(R, S, consumer);
 
 	EXPECT_THAT(result, UnorderedElementsAre(
 		Pair(1, 1),
@@ -319,6 +338,21 @@ TEST_F(Joins, reverseDuringStrict)
 TEST_F(Joins, reverseDuringStrictLM)
 {
 	leungMuntzReverseDuringStrictJoin(R, S, consumer);
+
+	EXPECT_THAT(result, UnorderedElementsAre(
+		Pair(1, 1),
+		Pair(2, 1),
+		Pair(2, 3),
+		Pair(2, 4),
+		Pair(2, 5),
+		Pair(3, 5)
+	));
+}
+
+
+TEST_F(Joins, reverseDuringStrictIE)
+{
+	ieJoinReverseDuringStrictJoin(R, S, consumer);
 
 	EXPECT_THAT(result, UnorderedElementsAre(
 		Pair(1, 1),

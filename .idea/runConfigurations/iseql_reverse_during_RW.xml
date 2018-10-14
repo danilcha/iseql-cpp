@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="iseql reverse-during RW" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="reverse-during --basf &quot;$PROJECT_DIR$/../../data/basf_nono.import&quot; --basf &quot;$PROJECT_DIR$/../../data/basf_nono.import&quot;" PASS_PARENT_ENVS_2="true" PROJECT_NAME="iseql-cpp" TARGET_NAME="iseql" CONFIG_NAME="Release GCC" RUN_TARGET_PROJECT_NAME="iseql-cpp" RUN_TARGET_NAME="iseql">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

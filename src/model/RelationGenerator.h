@@ -198,7 +198,7 @@ public:
 			split(line, '|', fields);
 
 			auto start = std::stoi(fields.at(1));
-			auto end   = std::stoi(fields.at(2));
+			auto end   = std::stoi(fields.at(2)) + 1;
 			auto value = std::stoi(fields.at(5)); // nolines
 
 			result.emplace_back(start, end, value);
