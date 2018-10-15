@@ -67,9 +67,16 @@ inline Relation getRelation(Arguments& arguments, RelationGenerator::SeedType se
 struct Workload
 {
 	Timestamp& accum;
+	#ifdef COUNTERS
+	mutable unsigned long long count = 0;
+	#endif
 
 	void operator()(const Tuple& r, const Tuple& s) const noexcept
 	{
+		#ifdef COUNTERS
+		count++;
+		#endif
+
 		accum += r.start + s.end;
 	}
 };
