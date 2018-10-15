@@ -37,7 +37,7 @@ disableLongExperiments()
     do
         local experiment=${experiments[$i]}
         local time=${values[$i]}
-        if [[ "$time" == 'nan' ]] || (( $(bc <<< "$time > 700") ))
+        if [[ "$time" == 'nan' ]] || (( $(bc <<< "$time > 1000") ))
         then
             if [ "$DISABLED_EXPERIMENTS" == '-' ]
             then
@@ -64,7 +64,7 @@ experiment()
         echo experiment "${@}"
         echo '---------------------------------------------------------------------------------------'
 
-        "$EXE" "${@:2}" | tee "$RESULTS_DIR/current.txt"
+        "$EXE" "${@:2}" "$DISABLED_EXPERIMENTS" | tee "$RESULTS_DIR/current.txt"
         mv "$RESULTS_DIR/current.txt" "$RESULT_FILE"
     fi
 

@@ -9,75 +9,7 @@
 
 
 
-enum class JoinCondition
-{
-	GreaterThan, GreaterThanEqual, LessThan, LessThanEqual
-};
-
-
-
-class IEJoinMasterOperator
-{
-public:
-	bool list1ASC = false;
-	bool list1ASCSec = false;
-	bool list2ASC = false;
-	bool list2ASCSec = false;
-	bool equalReverse = false;
-
-
-	IEJoinMasterOperator(JoinCondition cond0, JoinCondition cond1)
-	{
-		if (cond0 == JoinCondition::LessThan)
-		{
-			list1ASC = true;
-			list2ASCSec = true;
-		}
-		else if (cond0 == JoinCondition::LessThanEqual)
-		{
-			list1ASC = true;
-			list2ASCSec = false;
-		}
-		else if (cond0 == JoinCondition::GreaterThan)
-		{
-			list1ASC = false;
-			list2ASCSec = false;
-		}
-		else if (cond0 == JoinCondition::GreaterThanEqual)
-		{
-			list1ASC = false;
-			list2ASCSec = true;
-		}
-
-		// Reference and secondary pivot sort order
-		if (cond1 == JoinCondition::GreaterThan)
-		{
-			list2ASC = true;
-			list1ASCSec = true;
-		}
-		else if (cond1 == JoinCondition::GreaterThanEqual)
-		{
-			list2ASC = true;
-			list1ASCSec = false;
-		}
-		else if (cond1 == JoinCondition::LessThan)
-		{
-			list2ASC = false;
-			list1ASCSec = false;
-		}
-		else if (cond1 == JoinCondition::LessThanEqual)
-		{
-			list2ASC = false;
-			list1ASCSec = true;
-		}
-
-		// For equal pivot and reference
-		if (list1ASC != list2ASCSec && list2ASC != list1ASCSec)
-		{
-			equalReverse = true;
-		}
-	}
-};
+enum class Operator { Greater, GreaterOrEquals, Less, LessOrEquals };
 
 
 struct GetIntervalStart
@@ -97,95 +29,6 @@ struct GetIntervalEnd
 	}
 };
 
-
-template <typename Get0Pivot, typename Get1Pivot,
-		  typename Get0Ref,   typename Get1Ref>
-class IEJoinOperator : public IEJoinMasterOperator
-{
-private:
-	struct Element
-	{
-		Timestamp pivot;
-		Timestamp ref;
-		const Tuple* tuple;
-		size_t rowId;
-
-		Element(Timestamp pivot, Timestamp ref, const Tuple& tuple)
-		:
-			pivot(pivot),
-			ref(ref),
-			tuple(&tuple)
-		{
-		}
-	};
-
-
-
-
-public:
-	IEJoinOperator(JoinCondition cond0,
-				   JoinCondition cond1)
-	:
-		IEJoinMasterOperator(cond0, cond1)
-	{
-	}
-
-
-	template <typename Output>
-	void join(const Relation& stream0, const Relation& stream1, const Output& /*output*/)
-	{
-		auto list0 = streamToElementsAndSort(stream0, Get0Pivot(), Get0Ref(), list1ASC, list1ASCSec);
-		auto list1 = streamToElementsAndSort(stream1, Get1Pivot(), Get1Ref(), list2ASC, list2ASCSec);
-
-
-		auto partCount = list0.size();
-		auto partCount2 = list1.size();
-
-		// count starting point for rdd2
-		auto cnt2 = partCount + 1;
-
-		// Give unique ID for rdd1 & rdd2
-		for (size_t i = 0; i < partCount; i++)
-		{
-			list0[i].rowId = i;
-		}
-		for (size_t i = 0; i < partCount2; i++)
-		{
-			list1[i].rowId = i + cnt2;
-		}
-
-	}
-
-private:
-	template <typename GetPivot, typename GetRef>
-	static std::vector<Element> streamToElementsAndSort(const Relation& stream, GetPivot getPivot, GetRef getRef, bool asc1, bool asc2)
-	{
-		std::vector<Element> result;
-		result.reserve(stream.size());
-
-		for (const auto& tuple : stream)
-		{
-			result.push_back(Element{getPivot(tuple), getRef(tuple), tuple});
-		}
-
-		std::sort(result.begin(), result.end(), [asc1, asc2] (const Element& element1, const Element& element2)
-		{
-			if (element1.pivot < element2.pivot) return asc1;
-			if (element1.pivot > element2.pivot) return !asc1;
-
-			if (element1.ref < element2.ref) return asc1;
-			if (element1.ref > element2.ref) return !asc1;
-
-			return true;
-		});
-
-		return result;
-	}
-
-
-
-
-};
 
 
 
@@ -211,28 +54,79 @@ public:
 	}
 
 
-	bool isSet(size_t i) const noexcept
+	size_t findFirstBitInRange(size_t offsetBegin, size_t offsetEnd) noexcept
 	{
-		return bits[i];
-	}
+		auto begin = bits.begin() + static_cast<ptrdiff_t>(offsetBegin);
+		auto end   = bits.begin() + static_cast<ptrdiff_t>(offsetEnd);
+		auto pos = std::find(begin, end, true);
 
-	size_t findBitStartingFrom(size_t i) noexcept
-	{
-		if (i >= bits.size())
-			return END;
-
-		auto start = bits.begin() + static_cast<ptrdiff_t>(i);
-		auto pos = std::find(start, bits.end(), true);
-
-		if (pos == bits.end())
+		if (pos == end)
 			return END;
 		else
 			return static_cast<size_t>(std::distance(bits.begin(), pos));
+	}
+
+
+	size_t size() const noexcept
+	{
+		return bits.size();
 	}
 };
 
 
 
+
+class MultilevelBitVector
+{
+private:
+	static constexpr size_t CHUNK_SIZE = 1024;
+
+	BitVector bits;
+	BitVector index;
+	size_t maxIndexPos = 0;
+
+
+public:
+	MultilevelBitVector(size_t size)
+	:
+		bits(size),
+		index((size + CHUNK_SIZE - 1) / CHUNK_SIZE)
+	{
+	}
+
+
+	void setBit(size_t i) noexcept
+	{
+		bits.setBit(i);
+
+		auto indexPos = i / CHUNK_SIZE;
+		index.setBit(indexPos);
+		maxIndexPos = std::max(maxIndexPos, indexPos);
+	}
+
+
+	size_t findFirstBitStartingAt(size_t offsetBegin) noexcept
+	{
+		auto indexBegin = offsetBegin / CHUNK_SIZE;
+		if (indexBegin > maxIndexPos)
+			return BitVector::END;
+
+		auto indexPos = index.findFirstBitInRange(indexBegin, maxIndexPos + 1);
+		if (indexPos == BitVector::END)
+			return BitVector::END;
+
+		auto offsetChunkBegin = indexPos * CHUNK_SIZE;
+
+		offsetBegin = std::max(offsetBegin, offsetChunkBegin);
+		auto offsetEnd = std::min(bits.size(), offsetChunkBegin + CHUNK_SIZE);
+		auto result = bits.findFirstBitInRange(offsetBegin, offsetEnd);
+		if (result == BitVector::END && offsetEnd != bits.size())
+			return findFirstBitStartingAt(offsetEnd);
+		else
+			return result;
+	}
+
+};
 
 
 
@@ -253,29 +147,24 @@ public:
  * This is a fixed version that only supports ‘<’ as the first and ‘>’ as the second operator.
  */
 
-template <typename Get0Pivot, JoinCondition op1, typename Get1Pivot,
-		  typename Get0Ref,   JoinCondition op2, typename Get1Ref>
+template <typename GetRA1, Operator op1, typename GetSA1,
+		  typename GetRA2, Operator op2, typename GetSA2>
 class IEJoinOperator2
 {
 private:
-	static_assert(op1 == JoinCondition::LessThan && op2 == JoinCondition::GreaterThan,
+	static_assert(op1 == Operator::Less && op2 == Operator::Greater,
 		"This implementation only supports ‘<’ as the first and ‘>’ as the second operator.");
 
 	struct Element
 	{
 		Timestamp value;
-		const Tuple* tuple;
+		Tuple tuple;
 
 		Element(Timestamp value, const Tuple& tuple)
 		:
 			value(value),
-			tuple(&tuple)
+			tuple(tuple)
 		{
-		}
-
-		bool operator < (const Element& other) const noexcept
-		{
-			return value < other.value;
 		}
 	};
 
@@ -286,25 +175,25 @@ private:
 	Elements L1p;
 	Indices P, Pp;
 	Indices O1, O2;
-	BitVector Bp;
+	MultilevelBitVector Bp;
 
 
 public:
-	IEJoinOperator2(const Relation& r1, const Relation& r2)
+	IEJoinOperator2(const Relation& R, const Relation& S)
 	:
-		Bp(r2.size())
+		Bp(S.size())
 	{
 		Elements L1;
 		Elements L2p;
 
-		relationToElements<Get0Pivot>(r1, L1);
-		relationToElements<Get1Pivot>(r2, L1p);
-		relationToElements<Get0Ref  >(r1, L2);
-		relationToElements<Get1Ref  >(r2, L2p);
+		relationToElements<GetRA1>(R, L1);
+		relationToElements<GetRA2>(R, L2);
+		relationToElements<GetSA1>(S, L1p);
+		relationToElements<GetSA2>(S, L2p);
 
 		sortAsc(L1);
-		sortAsc(L1p);
 		sortAsc(L2);
+		sortAsc(L1p);
 		sortAsc(L2p);
 
 		P  = computePermutations(L2,  L1 );
@@ -327,24 +216,17 @@ public:
 				Bp.setBit(p);
 			}
 
-			auto off1 = static_cast<size_t>(O1[P[i]]);
-
-			for (auto k = off1; k < L1p.size(); k++)
+			auto k = static_cast<size_t>(O1[P[i]]);
+			for (;;)
 			{
-				if (Bp.isSet(k))
-					consumer(*L2[i].tuple, *L1p[k].tuple);
+				k = Bp.findFirstBitStartingAt(k);
+				if (k == BitVector::END)
+					break;
+
+				consumer(L2[i].tuple, L1p[k].tuple);
+
+				k++;
 			}
-//			for (;;)
-//			{
-//				k = Bp.findBitStartingFrom(k);
-//				if (k == BitVector::END)
-//					break;
-//
-//				consumer(*L2[i].tuple, *L2p[k].tuple);
-////				std::cout << *L2[i].tuple << ' ' << *L2p[k].tuple << std::endl;
-//
-//				k++;
-//			}
 		}
 
 	}
@@ -353,18 +235,22 @@ private:
 	template <typename GetValue>
 	static void relationToElements(const Relation& relation, std::vector<Element>& result)
 	{
+		GetValue getValue;
 		result.reserve(relation.size());
 
 		for (const auto& tuple : relation)
 		{
-			result.push_back(Element{GetValue()(tuple), tuple});
+			result.push_back(Element{getValue(tuple), tuple});
 		}
 	}
 
 
 	static void sortAsc(Elements& elements)
 	{
-		std::sort(elements.begin(), elements.end());
+		std::sort(elements.begin(), elements.end(), [] (const Element& lhs, const Element& rhs) noexcept
+		{
+			return lhs.value < rhs.value;
+		});
 	}
 
 
@@ -372,18 +258,18 @@ private:
 	{
 		auto n = from.size();
 
-		std::unordered_map<const Tuple*, unsigned> map;
+		std::unordered_map<int, unsigned> map;
 		map.reserve(n);
 		for (size_t i = 0; i < n; i++)
 		{
-			map.emplace(to[i].tuple, (unsigned) i);
+			map.emplace(to[i].tuple.getId(), (unsigned) i);
 		}
 
 		Indices result;
 		result.reserve(n);
 		for (const Element& item : from)
 		{
-			result.push_back(map.at(item.tuple));
+			result.push_back(map[item.tuple.getId()]);
 		}
 
 		return result;
@@ -417,12 +303,12 @@ private:
 
 
 using IEJoinStartPrecedingStrict = IEJoinOperator2<
-	GetIntervalStart, JoinCondition::LessThan,    GetIntervalStart,
-	GetIntervalEnd,   JoinCondition::GreaterThan, GetIntervalStart>;
+	GetIntervalStart, Operator::Less,    GetIntervalStart,
+	GetIntervalEnd,   Operator::Greater, GetIntervalStart>;
 
 using IEJoinReverseDuringStrict = IEJoinOperator2<
-	GetIntervalStart, JoinCondition::LessThan,    GetIntervalStart,
-	GetIntervalEnd,   JoinCondition::GreaterThan, GetIntervalEnd>;
+	GetIntervalStart, Operator::Less,    GetIntervalStart,
+	GetIntervalEnd,   Operator::Greater, GetIntervalEnd>;
 
 
 template <typename Consumer>

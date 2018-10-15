@@ -36,7 +36,7 @@ public:
 			Timestamp duration = Distribution{durationMin, durationMax}(generator);
 			Timestamp begin    = Distribution{domainMin, domainMax - duration + 1}(generator);
 			Timestamp end      = begin + duration;
-			result.emplace_back(begin, end);
+			result.emplace_back(begin, end, i);
 		}
 
 		return result;

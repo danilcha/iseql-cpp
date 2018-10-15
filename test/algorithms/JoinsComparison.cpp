@@ -33,8 +33,8 @@ protected:
 	#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 	static void SetUpTestCase()
 	{
-		R = RelationGenerator::generateUniform(10'000, 1, 1000, 1, 10'000, 5904595);
-		S = RelationGenerator::generateUniform(10'000, 1, 1000, 1, 10'000, 58534);
+		R = RelationGenerator::generateUniform(3'000, 1, 1000, 1, 10'000, 5904595);
+		S = RelationGenerator::generateUniform(3'000, 1, 1000, 1, 10'000, 58534);
 
 		R.sort();
 		S.sort();
@@ -46,11 +46,6 @@ protected:
 		S.setIndex(indexS);
 	}
 	#pragma clang diagnostic pop
-
-//	virtual void TearDown()
-//	{
-//		result = 0;
-//	}
 };
 
 

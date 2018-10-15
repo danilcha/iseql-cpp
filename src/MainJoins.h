@@ -98,7 +98,7 @@ inline void mainJoins(const std::string& command, Arguments& arguments)
 //	std::cout << "Distinct: " << ts.size() << std::endl;
 
 
-	auto disabledExperiments = "-lm0";//arguments.getCurrentArgAndSkipIt("comma-separated list of disabled tests");
+	auto disabledExperiments = arguments.getCurrentArgAndSkipIt("comma-separated list of disabled tests");
 	Experiments experiments(disabledExperiments);
 
 	experiments.prepare("sort", "", [&]

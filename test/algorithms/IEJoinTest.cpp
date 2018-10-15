@@ -25,8 +25,8 @@ static Relation S = {
 
 TEST(IEJoinTests, ArticleExample)
 {
-	IEJoinOperator2<GetIntervalStart, JoinCondition::LessThan,    GetIntervalStart,
-	                GetIntervalEnd,   JoinCondition::GreaterThan, GetIntervalEnd> join{R, S};
+	IEJoinOperator2<GetIntervalStart, Operator::Less,    GetIntervalStart,
+	                GetIntervalEnd,   Operator::Greater, GetIntervalEnd> join{R, S};
 
 	std::vector<std::pair<int, int>> result;
 
