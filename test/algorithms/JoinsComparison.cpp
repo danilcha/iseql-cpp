@@ -86,9 +86,15 @@ TEST_F(JoinsComparison, reverseDuringStrict)
 	t.stopAndPrint();
 	std::cout << " " << result << "\n";
 
-
+	t.start();
+	result = 0;
+	ieJoinReverseDuringStrictJoin(R, S, consumer);
+	auto ieResult = result;
+	t.stopAndPrint();
+	std::cout << " " << result << "\n";
 
 	EXPECT_EQ(normalResult, lmResult);
+	EXPECT_EQ(normalResult, ieResult);
 }
 
 

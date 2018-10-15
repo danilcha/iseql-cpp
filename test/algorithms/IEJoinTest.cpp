@@ -23,7 +23,7 @@ static Relation S = {
 
 
 
-TEST(IEJoinTests, BasicTest)
+TEST(IEJoinTests, ArticleExample)
 {
 	IEJoinOperator2<GetIntervalStart, JoinCondition::LessThan,    GetIntervalStart,
 	                GetIntervalEnd,   JoinCondition::GreaterThan, GetIntervalEnd> join{R, S};
