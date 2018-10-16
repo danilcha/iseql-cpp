@@ -240,11 +240,21 @@ private:
 
 		result.reserve(R.size() + S.size());
 
+		int i = 1;
+
 		for (const auto& r : R)
-			result.push_back(Element{getRValue(r), true,  r});
+		{
+			Element element = {getRValue(r), true,  r};
+			element.tuple.id = i++;
+			result.push_back(element);
+		}
 
 		for (const auto& s : S)
-			result.push_back(Element{getSValue(s), false, s});
+		{
+			Element element = {getSValue(s), false, s};
+			element.tuple.id = i++;
+			result.push_back(element);
+		}
 	}
 
 
@@ -254,50 +264,19 @@ private:
 	{
 		auto n = from.size();
 
-		auto key = [] (const Element& element)
-		{
-			auto id = element.tuple.getId();
-			return element.isOuter ? id : ~id;
-		};
-
 		std::unordered_map<int, unsigned> map;
 		map.reserve(n);
 		for (size_t i = 0; i < n; i++)
 		{
-			map.emplace(key(to[i]), (unsigned) i);
+			map.emplace(to[i].tuple.id, (unsigned) i);
 		}
 
 		result.reserve(n);
 		for (const Element& item : from)
 		{
-			result.push_back(map[key(item)]);
+			result.push_back(map[item.tuple.id]);
 		}
 	}
-
-	static Indices computeOffsets(const Elements& from, const Elements& to, Timestamp offset = 0)
-	{
-		auto f = from.begin();
-		auto t = to.begin();
-
-		Indices result;
-		result.reserve(from.size());
-
-		while (f != from.end() || t != to.end())
-		{
-			if (f == from.end() || (t != to.end() && t->value < f->value + offset))
-			{
-				t++;
-			}
-			else
-			{
-				result.push_back(static_cast<unsigned>(std::distance(to.begin(), t)));
-				f++;
-			}
-		}
-
-		return result;
-	}
-
 };
 
 

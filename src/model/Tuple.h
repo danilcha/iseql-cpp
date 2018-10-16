@@ -6,7 +6,7 @@
 
 class Tuple : public Interval
 {
-private:
+public:
 	int id;
 
 //	char data[32 - 12];

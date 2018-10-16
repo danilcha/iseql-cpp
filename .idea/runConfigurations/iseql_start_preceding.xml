@@ -1,5 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="iseql start-preceding" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PROGRAM_PARAMS="start-preceding" PASS_PARENT_ENVS_2="true" PROJECT_NAME="iseql-cpp" TARGET_NAME="iseql" CONFIG_NAME="Release GCC" RUN_TARGET_PROJECT_NAME="iseql-cpp" RUN_TARGET_NAME="iseql">
-    <method />
-  </configuration>
-</component>
