@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <iostream>
+#include <tuple>
 #include <cstddef>
 #include "model/Relation.h"
 
@@ -76,7 +77,7 @@ public:
 
 
 
-class MultilevelBitVector
+class IndexedBitVector
 {
 private:
 	static constexpr size_t CHUNK_SIZE = 1024;
@@ -87,7 +88,7 @@ private:
 
 
 public:
-	MultilevelBitVector(size_t size)
+	IndexedBitVector(size_t size)
 	:
 		bits(size),
 		index((size + CHUNK_SIZE - 1) / CHUNK_SIZE)
@@ -158,11 +159,13 @@ private:
 	struct Element
 	{
 		Timestamp value;
+		bool isOuter;
 		Tuple tuple;
 
-		Element(Timestamp value, const Tuple& tuple)
+		Element(Timestamp value, bool isOuter, const Tuple& tuple)
 		:
 			value(value),
+			isOuter(isOuter),
 			tuple(tuple)
 		{
 		}
@@ -171,108 +174,104 @@ private:
 	using Elements = std::vector<Element>;
 	using Indices  = std::vector<unsigned>;
 
+	Elements L1;
 	Elements L2;
-	Elements L1p;
-	Indices P, Pp;
-	Indices O1, O2;
-	MultilevelBitVector Bp;
+	Indices P;
+	IndexedBitVector B;
 
 
 public:
 	IEJoinOperator2(const Relation& R, const Relation& S)
 	:
-		Bp(S.size())
+		B(R.size() + S.size())
 	{
-		Elements L1;
-		Elements L2p;
+		relationsToElements<GetRA1, GetSA1>(R, S, L1);
+		relationsToElements<GetRA2, GetSA2>(R, S, L2);
 
-		relationToElements<GetRA1>(R, L1);
-		relationToElements<GetRA2>(R, L2);
-		relationToElements<GetSA1>(S, L1p);
-		relationToElements<GetSA2>(S, L2p);
+		std::sort(L1.begin(), L1.end(), [] (const Element& lhs, const Element& rhs) noexcept
+		{
+			return std::make_tuple(lhs.value,  lhs.isOuter) < std::make_tuple(rhs.value,  rhs.isOuter);
+		});
 
-		sortAsc(L1);
-		sortAsc(L2);
-		sortAsc(L1p);
-		sortAsc(L2p);
+		std::sort(L2.begin(), L2.end(), [] (const Element& lhs, const Element& rhs) noexcept
+		{
+			return std::make_tuple(lhs.value, !lhs.isOuter) < std::make_tuple(rhs.value, !rhs.isOuter);
+		});
 
-		P  = computePermutations(L2,  L1 );
-		Pp = computePermutations(L2p, L1p);
-
-		O1 = computeOffsets(L1, L1p, 1);
-		O2 = computeOffsets(L2, L2p);
+		computePermutations(L2, L1, P);
 	}
 
 
 	template <typename Consumer>
 	void join(Consumer&& consumer)
 	{
-		for (size_t i = 0; i < O1.size(); i++)
+		for (size_t i2 = 0; i2 < L2.size(); i2++)
 		{
-			auto off2 = static_cast<size_t>(O2[i]);
-			for (size_t j = 0; j < off2; j++)
+			if (!L2[i2].isOuter)
+				continue;
+
+			for (size_t j2 = 0; j2 < i2; j2++)
 			{
-				auto p = Pp[j];
-				Bp.setBit(p);
+				if (L2[j2].isOuter)
+					continue;
+
+				B.setBit(P[j2]);
 			}
 
-			auto k = static_cast<size_t>(O1[P[i]]);
+			auto i1 = static_cast<size_t>(P[i2]);
 			for (;;)
 			{
-				k = Bp.findFirstBitStartingAt(k);
-				if (k == BitVector::END)
+				i1 = B.findFirstBitStartingAt(i1 + 1);
+				if (i1 == BitVector::END)
 					break;
 
-				consumer(L2[i].tuple, L1p[k].tuple);
-
-				k++;
+				consumer(L2[i2].tuple, L1[i1].tuple);
 			}
 		}
 
 	}
 
 private:
-	template <typename GetValue>
-	static void relationToElements(const Relation& relation, std::vector<Element>& result)
+	template <typename GetRValue, typename GetSValue>
+	static void relationsToElements(const Relation& R, const Relation& S, std::vector<Element>& result)
 	{
-		GetValue getValue;
-		result.reserve(relation.size());
+		GetRValue getRValue;
+		GetSValue getSValue;
 
-		for (const auto& tuple : relation)
-		{
-			result.push_back(Element{getValue(tuple), tuple});
-		}
+		result.reserve(R.size() + S.size());
+
+		for (const auto& r : R)
+			result.push_back(Element{getRValue(r), true,  r});
+
+		for (const auto& s : S)
+			result.push_back(Element{getSValue(s), false, s});
 	}
 
 
-	static void sortAsc(Elements& elements)
-	{
-		std::sort(elements.begin(), elements.end(), [] (const Element& lhs, const Element& rhs) noexcept
-		{
-			return lhs.value < rhs.value;
-		});
-	}
 
 
-	static Indices computePermutations(const Elements& from, const Elements& to)
+	static void computePermutations(const Elements& from, const Elements& to, Indices& result)
 	{
 		auto n = from.size();
+
+		auto key = [] (const Element& element)
+		{
+			auto id = element.tuple.getId();
+			return element.isOuter ? id : ~id;
+		};
 
 		std::unordered_map<int, unsigned> map;
 		map.reserve(n);
 		for (size_t i = 0; i < n; i++)
 		{
-			map.emplace(to[i].tuple.getId(), (unsigned) i);
+			map.emplace(key(to[i]), (unsigned) i);
 		}
 
-		Indices result;
 		result.reserve(n);
 		for (const Element& item : from)
 		{
-			result.push_back(map[item.tuple.getId()]);
+			result.push_back(map[key(item)]);
 		}
-
-		return result;
 	}
 
 	static Indices computeOffsets(const Elements& from, const Elements& to, Timestamp offset = 0)
