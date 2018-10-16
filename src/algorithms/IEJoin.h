@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <iostream>
+#include <map>
 #include <tuple>
 #include <cstddef>
 #include "model/Relation.h"
@@ -65,6 +66,12 @@ public:
 			return END;
 		else
 			return static_cast<size_t>(std::distance(bits.begin(), pos));
+	}
+
+
+	size_t findFirstBitStartingAt(size_t offsetBegin) noexcept
+	{
+		return findFirstBitInRange(offsetBegin, size());
 	}
 
 
@@ -160,6 +167,7 @@ private:
 	{
 		Timestamp value;
 		bool isOuter;
+		int id;
 		Tuple tuple;
 
 		Element(Timestamp value, bool isOuter, const Tuple& tuple)
@@ -177,7 +185,7 @@ private:
 	Elements L1;
 	Elements L2;
 	Indices P;
-	IndexedBitVector B;
+	BitVector B;
 
 
 public:
@@ -205,27 +213,33 @@ public:
 	template <typename Consumer>
 	void join(Consumer&& consumer)
 	{
+		size_t previousI2 = 0;
+
+		std::multimap<Timestamp, Tuple> map;
+
 		for (size_t i2 = 0; i2 < L2.size(); i2++)
 		{
 			if (!L2[i2].isOuter)
 				continue;
 
-			for (size_t j2 = 0; j2 < i2; j2++)
+			for (size_t j2 = previousI2; j2 < i2; j2++)
 			{
 				if (L2[j2].isOuter)
 					continue;
 
-				B.setBit(P[j2]);
+				const auto& element = L1[P[j2]];
+				map.emplace(element.value, element.tuple);
+//				B.setBit(P[j2]);
 			}
 
-			auto i1 = static_cast<size_t>(P[i2]);
-			for (;;)
-			{
-				i1 = B.findFirstBitStartingAt(i1 + 1);
-				if (i1 == BitVector::END)
-					break;
+			previousI2 = i2 + 1;
 
-				consumer(L2[i2].tuple, L1[i1].tuple);
+//			auto i1 = static_cast<size_t>(P[i2]);
+			auto i1 = map.upper_bound(L1[P[i2]].value);
+			while (i1 != map.end())
+			{
+				consumer(L2[i2].tuple, i1->second);
+				i1++;
 			}
 		}
 
@@ -245,14 +259,14 @@ private:
 		for (const auto& r : R)
 		{
 			Element element = {getRValue(r), true,  r};
-			element.tuple.id = i++;
+			element.id = i++;
 			result.push_back(element);
 		}
 
 		for (const auto& s : S)
 		{
 			Element element = {getSValue(s), false, s};
-			element.tuple.id = i++;
+			element.id = i++;
 			result.push_back(element);
 		}
 	}
@@ -268,13 +282,13 @@ private:
 		map.reserve(n);
 		for (size_t i = 0; i < n; i++)
 		{
-			map.emplace(to[i].tuple.id, (unsigned) i);
+			map.emplace(to[i].id, (unsigned) i);
 		}
 
 		result.reserve(n);
 		for (const Element& item : from)
 		{
-			result.push_back(map[item.tuple.id]);
+			result.push_back(map[item.id]);
 		}
 	}
 };
