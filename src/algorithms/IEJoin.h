@@ -159,15 +159,25 @@ private:
 	struct Element
 	{
 		Timestamp value;
-		bool isOuter;
+		int id;
 		Tuple tuple;
 
-		Element(Timestamp value, bool isOuter, const Tuple& tuple)
+		Element(Timestamp value, bool isOuter, int id, const Tuple& tuple)
 		:
 			value(value),
-			isOuter(isOuter),
+			id(isOuter ? id : -id),
 			tuple(tuple)
 		{
+		}
+
+		bool isOuter() const noexcept
+		{
+			return id > 0;
+		}
+
+		bool isInner() const noexcept
+		{
+			return id < 0;
 		}
 	};
 
@@ -190,12 +200,12 @@ public:
 
 		std::sort(L1.begin(), L1.end(), [] (const Element& lhs, const Element& rhs) noexcept
 		{
-			return std::make_tuple(lhs.value,  lhs.isOuter) < std::make_tuple(rhs.value,  rhs.isOuter);
+			return std::make_tuple(lhs.value, lhs.isOuter()) < std::make_tuple(rhs.value, rhs.isOuter());
 		});
 
 		std::sort(L2.begin(), L2.end(), [] (const Element& lhs, const Element& rhs) noexcept
 		{
-			return std::make_tuple(lhs.value, !lhs.isOuter) < std::make_tuple(rhs.value, !rhs.isOuter);
+			return std::make_tuple(lhs.value, lhs.isInner()) < std::make_tuple(rhs.value, rhs.isInner());
 		});
 
 		computePermutations(L2, L1, P);
@@ -207,12 +217,12 @@ public:
 	{
 		for (size_t i2 = 0; i2 < L2.size(); i2++)
 		{
-			if (!L2[i2].isOuter)
+			if (!L2[i2].isOuter())
 				continue;
 
 			for (size_t j2 = 0; j2 < i2; j2++)
 			{
-				if (L2[j2].isOuter)
+				if (!L2[j2].isInner())
 					continue;
 
 				B.setBit(P[j2]);
@@ -240,20 +250,16 @@ private:
 
 		result.reserve(R.size() + S.size());
 
-		int i = 1;
-
-		for (const auto& r : R)
+		for (size_t i = 0; i < R.size(); i++)
 		{
-			Element element = {getRValue(r), true,  r};
-			element.tuple.id = i++;
-			result.push_back(element);
+			const auto& tuple = R[i];
+			result.push_back(Element{getRValue(tuple), true,  (int) i + 1, tuple});
 		}
 
-		for (const auto& s : S)
+		for (size_t i = 0; i < S.size(); i++)
 		{
-			Element element = {getSValue(s), false, s};
-			element.tuple.id = i++;
-			result.push_back(element);
+			const auto& tuple = S[i];
+			result.push_back(Element{getSValue(tuple), false, (int) i + 1, tuple});
 		}
 	}
 
@@ -268,13 +274,13 @@ private:
 		map.reserve(n);
 		for (size_t i = 0; i < n; i++)
 		{
-			map.emplace(to[i].tuple.id, (unsigned) i);
+			map.emplace(to[i].id, (unsigned) i);
 		}
 
 		result.reserve(n);
 		for (const Element& item : from)
 		{
-			result.push_back(map[item.tuple.id]);
+			result.push_back(map[item.id]);
 		}
 	}
 };
