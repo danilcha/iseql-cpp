@@ -65,6 +65,7 @@ public:
 
 	Experiments() : Experiments("") { }
 
+	Experiments(Experiments&&) = default;
 
 	~Experiments()
 	{

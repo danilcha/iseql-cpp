@@ -2,6 +2,7 @@
 #include "util/Arguments.h"
 #include "algorithms/Joins.h"
 #include "MainBefore.h"
+#include "MainLatency.h"
 #include "MainJoins.h"
 
 
@@ -28,6 +29,8 @@ int main(int /*argc*/, const char* argv[])
 
 	if (command == "before")
 		mainBefore(arguments);
+	else if (command == "latency")
+		mainLatency(arguments);
 	else
 		mainJoins(command, arguments);
 

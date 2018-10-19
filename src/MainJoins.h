@@ -66,40 +66,8 @@ inline void mainJoins(const std::string& command, Arguments& arguments)
 {
 	Relation R, S;
 
-	if (!arguments.empty())
-	{
-		Timer timer;
-		std::cout << "Relation R: ";
-		R = getRelation(arguments, 564564);
-		std::cout << "Relation G: ";
-		S = getRelation(arguments, 345);
-		std::cout << "Loading done in ";
-		timer.stopAndPrint();
-		std::cout << " s" << std::endl;
-	}
-	else
-	{
-//		R = RelationGenerator::generateUniform((unsigned) 1e5, 1, (unsigned) 6e2, 1, (unsigned) 1e9, 1232398);
-//		S = RelationGenerator::generateUniform((unsigned) 1e4, 1, (unsigned) 1e2, 1, (unsigned) 1e9, 345);
-//		R = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 1232398);
-//		S = RelationGenerator::generateExponential(100'000, 1e-4, 1, 1'000'000, 345);
-		R = RelationGenerator::generateUniform(1200000, 1, 3, 10, 3000, 5904595);
-		S = RelationGenerator::generateUniform( 30000, 1, 3, 10, 3000,   58534);
-//		R = RelationGenerator::generateUniform(12, 1, 3, 10, 30, 5904595);
-//		S = RelationGenerator::generateUniform( 3, 1, 3, 10, 30,   58534);
-	}
+	auto experiments = getExperimentsAndPopulateRelations(arguments, R, S);
 
-//	std::unordered_set<Timestamp> ts;
-//	for (const auto& r : R)
-//	{
-//		ts.insert(r.start);
-//		ts.insert(r.end);
-//	}
-//	std::cout << "Distinct: " << ts.size() << std::endl;
-
-
-	auto disabledExperiments = arguments.getCurrentArgAndSkipIt("comma-separated list of disabled tests");
-	Experiments experiments(disabledExperiments);
 
 	experiments.prepare("sort", "", [&]
 	{
@@ -117,7 +85,6 @@ inline void mainJoins(const std::string& command, Arguments& arguments)
 
 	R.setIndex(indexR);
 	S.setIndex(indexS);
-
 
 
 	if (command == "reverse-during")

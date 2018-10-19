@@ -38,6 +38,7 @@ add_executable(iseql
 
 		MainBefore.h
 		MainCommon.h
+		MainLatency.h
 		MainJoins.h
 
 		containers/GaplessHashMap.h
@@ -45,4 +46,4 @@ add_executable(iseql
 		containers/Util.h
 
 
-		)
+		util/Aggregates.h)

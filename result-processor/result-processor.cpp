@@ -159,9 +159,9 @@ void rwSuite()
 
 void expSuite()
 {
-  	vary_cardinality_and_operator("w1e2.txt", "1e2");
-  	vary_cardinality_and_operator("w1e4.txt", "1e4");
-  	vary_cardinality_and_operator("w1e6.txt", "1e6");
+	vary_cardinality_and_operator("w1e2.txt", "1e2");
+	vary_cardinality_and_operator("w1e4.txt", "1e4");
+	vary_cardinality_and_operator("w1e6.txt", "1e6");
 }
 
 
@@ -169,15 +169,35 @@ void expSuite()
 void main__()
 {
 	output_dir = "../iseql-article/data";
+
+//	result_dir = "results/dacha4";
+//	expSuite();
+//	return;
+
+
 	result_dir = "results/dacha1";
 
 	expSuite();
-
 	rwSuite();
+
+	generate_data_file("latency.txt",
+	{
+		{"flight", "latency-ie-flight.txt"},
+		{"inc",    "latency-ie-inc.txt"   },
+		{"web",    "latency-ie-web.txt"   },
+		{"basf",   "latency-ie-basf.txt"  },
+		{"feed",   "latency-ie-big.txt"   },
+		{"wi",     "latency-ie-wi.txt"    },
+		{"fi",     "latency-ie-bi.txt"    },
+	});
+
+
 	prefix = "counters-";
 	rwSuite();
 	prefix = "ebi-";
 	rwSuite();
+
+
 }
 
 

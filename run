@@ -17,12 +17,8 @@ mkdir -p "$RESULTS_DIR"
 
 
 
-DISABLED_EXPERIMENTS=''
+DISABLED_EXPERIMENTS='-'
 
-resetDisabledExperiments()
-{
-    DISABLED_EXPERIMENTS='-'
-}
 
 
 disableLongExperiments()
@@ -31,20 +27,14 @@ disableLongExperiments()
     local experiments=(`echo "$DATA" | head -n 1`)
     local values=(`echo "$DATA" | tail -n 1`)
 
-    resetDisabledExperiments
-
     for i in `seq 0 $((${#experiments[*]} - 1))`
     do
-        local experiment=${experiments[$i]}
-        local time=${values[$i]}
-        if [[ "$time" == 'nan' ]] || (( $(bc <<< "$time > 1000") ))
+        local experiment="${experiments[$i]}"
+        local time="${values[$i]}"
+        if [ "$time" != 'nan' ] && (( $(bc -l <<< "${time/e/E} > 20000") ))
         then
-            if [ "$DISABLED_EXPERIMENTS" == '-' ]
-            then
-                DISABLED_EXPERIMENTS="$experiment"
-            else
-                DISABLED_EXPERIMENTS="$DISABLED_EXPERIMENTS,$experiment"
-            fi
+            echo "Disabling experiment $experiment due to the running time of $time s in $1"
+            DISABLED_EXPERIMENTS="$DISABLED_EXPERIMENTS,$experiment"
         fi
     done
 }
@@ -64,12 +54,26 @@ experiment()
         echo experiment "${@}"
         echo '---------------------------------------------------------------------------------------'
 
-        "$EXE" "${@:2}" "$DISABLED_EXPERIMENTS" | tee "$RESULTS_DIR/current.txt"
+        "$EXE" "${@:2}" | tee "$RESULTS_DIR/current.txt"
         mv "$RESULTS_DIR/current.txt" "$RESULT_FILE"
     fi
 
     disableLongExperiments "$RESULT_FILE"
 }
+
+
+
+
+experiment latency-ie-flight latency --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  -
+experiment latency-ie-inc    latency --file "$DATA_DIR/incumbent-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"      -
+experiment latency-ie-wi     latency --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/incumbent-norm.txt"      -
+experiment latency-ie-bi     latency --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"      -
+experiment latency-ie-web    latency --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/webkit-norm.txt"         -
+experiment latency-ie-big    latency --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/big_table-norm.txt"      -
+experiment latency-ie-basf   latency --basf "$DATA_DIR/basf_nono.import"        --basf "$DATA_DIR/basf_nono.import"        -
+
+
+
 
 
 EXPERIMENTS_PREFIX=""
@@ -84,7 +88,7 @@ experiments()
 
 exp-suite()
 {
-    resetDisabledExperiments
+    DISABLED_EXPERIMENTS='ie'
     for c in 1e3 3.16e3 1e4 3.16e4 1e5 3.16e5 1e6 3.16e6 1e7 3.16e7 1e8 # 3.16e8 1e9
     do
     #	for l in 1e1 1e2 1e3 1e4 1e5 1e6
@@ -111,20 +115,21 @@ exp-suite()
                 continue
             fi
 
-            experiments "exp-$c-$l" --exp $c $l --exp $c $l
+            experiments "exp-$c-$l" --exp $c $l --exp $c $l -
         done
     done
 }
 
 rw-suite()
 {
-    experiments rw-flight  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"
-    experiments rw-inc     --file "$DATA_DIR/incumbent-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"
-    experiments rw-wi      --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/incumbent-norm.txt"
-    experiments rw-bi      --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"
-    experiments rw-web     --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/webkit-norm.txt"
-    experiments rw-big     --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/big_table-norm.txt"
-    experiments rw-basf    --basf "$DATA_DIR/basf_nono.import"        --basf "$DATA_DIR/basf_nono.import"
+    DISABLED_EXPERIMENTS='ie'
+    experiments rw-flight  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  -
+    experiments rw-inc     --file "$DATA_DIR/incumbent-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"      -
+    experiments rw-wi      --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/incumbent-norm.txt"      -
+    experiments rw-bi      --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"      -
+    experiments rw-web     --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/webkit-norm.txt"         -
+    experiments rw-big     --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/big_table-norm.txt"      -
+    experiments rw-basf    --basf "$DATA_DIR/basf_nono.import"        --basf "$DATA_DIR/basf_nono.import"        -
 }
 
 
