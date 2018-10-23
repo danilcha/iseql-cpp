@@ -7,22 +7,24 @@
 template <typename T>
 struct Aggregate
 {
+	static_assert(sizeof(long double) >= 10, "long double should be bigger than double");
+
 	T max = std::numeric_limits<T>::min();
 	T min = std::numeric_limits<T>::max();
-	size_t count = 0;
-	long long sum = 0;
+	unsigned long long  count = 0;
+	long double sum = 0;
 
 	void add(T value)
 	{
 		max = std::max(max, value);
 		min = std::min(min, value);
-		sum += (long long) value;
+		sum += (long double) value;
 		count++;
 	}
 
 
 	double getAvg()
 	{
-		return (double) sum / count;
+		return static_cast<double>(sum / count);
 	}
 };

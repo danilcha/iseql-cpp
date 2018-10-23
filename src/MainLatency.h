@@ -18,6 +18,7 @@ static void stats(Experiments& experiments, const Relation& relation, const std:
 	for (const auto& tuple : relation)
 	{
 		aggregate.add(tuple.getLength());
+
 	}
 
 	experiments.addExperimentResult(name + "-avg-len", aggregate.getAvg());
@@ -25,14 +26,14 @@ static void stats(Experiments& experiments, const Relation& relation, const std:
 }
 
 
-static void tupleEffectiveEnds(const Relation& relation, std::unordered_map<int, Timestamp>& result)
+static void tupleEffectiveEnds(Relation& relation)
 {
 	GaplessHashMap<TID, Timestamp> active(4096);
 
 	for (const auto& endpoint : relation.getIndex())
 	{
-		const auto tid = endpoint.getTID();
-		const auto& tuple = relation[tid];
+		auto tid = endpoint.getTID();
+		auto& tuple = relation[tid];
 
 		if (endpoint.isStart())
 		{
@@ -42,7 +43,7 @@ static void tupleEffectiveEnds(const Relation& relation, std::unordered_map<int,
 
 
 			auto effectiveEnd = std::max_element(active.begin(), active.end());
-			result.emplace(tuple.id, *effectiveEnd);
+			tuple.id = *effectiveEnd;
 		}
 		else
 		{
@@ -58,14 +59,6 @@ inline void mainLatency(Arguments& arguments)
 
 	auto experiments = getExperimentsAndPopulateRelations(arguments, R, S);
 
-	{
-		int i = 1;
-		for (auto& tuple : R)
-			tuple.id = i++;
-		for (auto& tuple : S)
-			tuple.id = i++;
-	}
-
 	Index indexR{R}, indexS{S};
 	R.setIndex(indexR);
 	S.setIndex(indexS);
@@ -76,19 +69,14 @@ inline void mainLatency(Arguments& arguments)
 	Aggregate<Timestamp> latencies1;
 	Aggregate<Timestamp> latencies2;
 
-	std::unordered_map<int, Timestamp> effectiveEnds{4096};
-
-	tupleEffectiveEnds(R, effectiveEnds);
-	tupleEffectiveEnds(S, effectiveEnds);
+	tupleEffectiveEnds(R);
+	tupleEffectiveEnds(S);
 
 	reverseDuringStrictJoin(R, S, [&] (const Tuple& r, const Tuple& s)
 	{
 		latencies1.add(r.end - s.end);
 
-		auto realEnd = std::max(
-			effectiveEnds.at(r.id),
-			effectiveEnds.at(s.id)
-		);
+		auto realEnd = std::max(r.id, s.id);
 
 		latencies2.add(realEnd - s.end);
 	});

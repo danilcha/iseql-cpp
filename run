@@ -17,7 +17,7 @@ mkdir -p "$RESULTS_DIR"
 
 
 
-DISABLED_EXPERIMENTS='-'
+DISABLED_EXPERIMENTS='ie'
 
 
 
@@ -94,28 +94,28 @@ exp-suite()
     #	for l in 1e1 1e2 1e3 1e4 1e5 1e6
         for l in 1e2 1e4 1e6
         do
-            if [[ "$c" == "3.16e6" && ("$l" == "1e6") ]]
+#            if [[ "$c" == "3.16e6" && ("$l" == "1e6") ]]
+#            then
+#                continue
+#            fi
+            if [[ "$c" == "1e7"    && ("$l" == "1e6") ]]
             then
                 continue
             fi
-            if [[ "$c" == "1e7"    && ("$l" == "1e5" || "$l" == "1e6") ]]
+            if [[ "$c" == "3.16e7" && ("$l" == "1e5" || "$l" == "1e6") ]]
             then
                 continue
             fi
-            if [[ "$c" == "3.16e7" && ("$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+            if [[ "$c" == "1e8"    && ("$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
             then
                 continue
             fi
-            if [[ "$c" == "1e8"    && ("$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
-            then
-                continue
-            fi
-            if [[ "$c" == "3.16e8" && ("$l" == "1e2" || "$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
+            if [[ "$c" == "3.16e8" && ("$l" == "1e3" || "$l" == "1e4" || "$l" == "1e5" || "$l" == "1e6") ]]
             then
                 continue
             fi
 
-            experiments "exp-$c-$l" --exp $c $l --exp $c $l -
+            experiments "exp-$c-$l" --exp $c $l --exp $c $l ie
         done
     done
 }
@@ -123,13 +123,13 @@ exp-suite()
 rw-suite()
 {
     DISABLED_EXPERIMENTS='ie'
-    experiments rw-flight  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  -
-    experiments rw-inc     --file "$DATA_DIR/incumbent-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"      -
-    experiments rw-wi      --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/incumbent-norm.txt"      -
-    experiments rw-bi      --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"      -
-    experiments rw-web     --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/webkit-norm.txt"         -
-    experiments rw-big     --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/big_table-norm.txt"      -
-    experiments rw-basf    --basf "$DATA_DIR/basf_nono.import"        --basf "$DATA_DIR/basf_nono.import"        -
+    experiments rw-flight  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  --file "$DATA_DIR/FLIGHTS_DATA_TABLE.txt"  ie
+    experiments rw-inc     --file "$DATA_DIR/incumbent-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"      ie
+    experiments rw-wi      --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/incumbent-norm.txt"      ie
+    experiments rw-bi      --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/incumbent-norm.txt"      ie
+    experiments rw-web     --file "$DATA_DIR/webkit-norm.txt"         --file "$DATA_DIR/webkit-norm.txt"         ie
+    experiments rw-big     --file "$DATA_DIR/big_table-norm.txt"      --file "$DATA_DIR/big_table-norm.txt"      ie
+    experiments rw-basf    --basf "$DATA_DIR/basf_nono.import"        --basf "$DATA_DIR/basf_nono.import"        ie
 }
 
 
